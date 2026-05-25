@@ -9,24 +9,24 @@ import { ChatWidget } from '@/components/chat/ChatWidget'
 const ALLERGENS = ['Gluten','Dairy','Eggs','Peanuts','Soy','Shellfish','Fish','Wheat']
 const DYES      = ['Red #40','Yellow #5','Yellow #6','Blue #1','Red #3']
 const STORES    = [
-  { slug:'kroger',     label:'ðŸª Kroger' },
-  { slug:'walmart',    label:'ðŸŸ¡ Walmart' },
-  { slug:'heb',        label:'ðŸŒ® HEB' },
-  { slug:'target',     label:'ðŸŽ¯ Target' },
-  { slug:'aldi',       label:'ðŸ›’ Aldi' },
-  { slug:'wholefoods', label:'ðŸŒ¿ Whole Foods' },
-  { slug:'sprouts',    label:'ðŸŒ± Sprouts' },
-  { slug:'randalls',   label:'ðŸ¬ Randalls' },
-  { slug:'safeway',    label:'ðŸ›ï¸ Safeway' },
-  { slug:'costco',     label:'ðŸ­ Costco' },
+  { slug:'kroger',     label:'Kroger' },
+  { slug:'walmart',    label:'Walmart' },
+  { slug:'heb',        label:'HEB' },
+  { slug:'target',     label:'Target' },
+  { slug:'aldi',       label:'›’ Aldi' },
+  { slug:'wholefoods', label:'Whole Foods' },
+  { slug:'sprouts',    label:'Sprouts' },
+  { slug:'randalls',   label:'Randalls' },
+  { slug:'safeway',    label:'› Safeway' },
+  { slug:'costco',     label:'Costco' },
   { slug:'samsclub', label:'Sams Club' },
 ]
 const GOALS = [
-  { id:'balanced',    label:'âš–ï¸ Balanced',   desc:'Balanced macros ~2,000 cal/day â€” 30% protein, 45% carbs, 25% fat' },
-  { id:'muscle-gain', label:'ðŸ’ª Muscle Gain', desc:'High protein 140g+/day â€” chicken, eggs, Greek yogurt, cottage cheese' },
-  { id:'weight-loss', label:'ðŸ”¥ Weight Loss', desc:'Low calorie 1,400/day â€” high fiber, lean protein, lots of vegetables' },
-  { id:'endurance',   label:'ðŸƒ Endurance',   desc:'High carb 55â€“60% â€” oats, sweet potato, brown rice, bananas' },
-  { id:'plant-based', label:'ðŸŒ± Plant-Based', desc:'Plant proteins only â€” beans, lentils, tofu, tempeh, no meat or dairy' },
+  { id:'balanced',    label:'– Balanced',   desc:'Balanced macros ~2,000 cal/day â€” 30% protein, 45% carbs, 25% fat' },
+  { id:'muscle-gain', label:'’ Muscle Gain', desc:'High protein 140g+/day â€” chicken, eggs, Greek yogurt, cottage cheese' },
+  { id:'weight-loss', label:'” Weight Loss', desc:'Low calorie 1,400/day â€” high fiber, lean protein, lots of vegetables' },
+  { id:'endurance',   label:'Endurance',   desc:'High carb 55â€“60% â€” oats, sweet potato, brown rice, bananas' },
+  { id:'plant-based', label:'Plant-Based', desc:'Plant proteins only â€” beans, lentils, tofu, tempeh, no meat or dairy' },
 ]
 
 const card: React.CSSProperties = {
@@ -85,8 +85,8 @@ export function BudgetTab() {
           <div style={secTitle}>ðŸ‘¤ Who are you budgeting for?</div>
           <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, marginBottom:14 }}>
             {[
-              { id:'individual', label:'ðŸ‘¤ Just Me',   sub:'Individual plan' },
-              { id:'family',     label:'ðŸ‘¨â€ðŸ‘©â€ðŸ‘§ Family',    sub:'2â€“10 people' },
+              { id:'individual', label:'‘ Just Me',   sub:'Individual plan' },
+              { id:'family',     label:'‘€‘€‘ Family',    sub:'2â€“10 people' },
             ].map(m => (
               <button key={m.id} onClick={() => {
                 setMode(m.id as any)
