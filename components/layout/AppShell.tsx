@@ -17,93 +17,107 @@ export function AppShell({ activeTab, onTabChange, children }: {
   const [themeOpen, setThemeOpen] = useState(false)
 
   return (
-    <div style={{ maxWidth: 680, margin: '0 auto', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'var(--bg)' }}>
 
-      {/* Header */}
+      {/* Header — full width */}
       <header style={{
         background: 'var(--p)',
-        padding: '14px 18px',
+        padding: '0 32px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
+        height: 58,
         position: 'sticky',
         top: 0,
         zIndex: 50,
-        borderRadius: '0 0 20px 20px',
-        boxShadow: '0 4px 20px rgba(107,203,119,0.3)',
+        boxShadow: '0 4px 20px rgba(107,203,119,0.25)',
+        flexShrink: 0,
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ fontSize: 26 }}>💪</span>
-          <div className="font-display" style={{ fontSize: 22, color: '#fff', letterSpacing: 1 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <span style={{ fontSize: 28 }}>💪</span>
+          <div className="font-display" style={{ fontSize: 24, color: '#fff', letterSpacing: 1 }}>
             Lean<span style={{ color: 'var(--acc)' }}>Spend</span>
           </div>
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           {['📱', '🔔'].map((ic, i) => (
             <button key={i} style={{
-              width: 34, height: 34, borderRadius: '50%',
+              width: 36, height: 36, borderRadius: '50%',
               background: 'rgba(255,255,255,0.2)', border: 'none',
-              color: '#fff', fontSize: 15, cursor: 'pointer',
+              color: '#fff', fontSize: 16, cursor: 'pointer',
             }}>{ic}</button>
           ))}
           <button
             onClick={() => setThemeOpen(o => !o)}
             title="Customize theme"
             style={{
-              width: 34, height: 34, borderRadius: '50%',
+              width: 36, height: 36, borderRadius: '50%',
               background: 'rgba(255,255,255,0.25)',
               border: '1.5px solid rgba(255,255,255,0.5)',
-              color: '#fff', fontSize: 15, cursor: 'pointer',
+              color: '#fff', fontSize: 16, cursor: 'pointer',
             }}>🎨</button>
         </div>
       </header>
 
       {/* Theme Panel */}
-      {themeOpen && <ThemePanel onClose={() => setThemeOpen(false)} />}
+      {themeOpen && (
+        <div style={{ padding: '0 32px' }}>
+          <ThemePanel onClose={() => setThemeOpen(false)} />
+        </div>
+      )}
 
-      {/* Nav */}
+      {/* Nav — full width */}
       <nav style={{
         display: 'flex',
         background: 'var(--card)',
         borderBottom: '2px solid var(--border)',
         position: 'sticky',
-        top: 68,
+        top: 58,
         zIndex: 40,
+        padding: '0 24px',
+        flexShrink: 0,
       }}>
         {TABS.map(t => (
           <button
             key={t.id}
             onClick={() => onTabChange(t.id)}
             style={{
-              flex: 1,
-              padding: '10px 4px 8px',
+              padding: '0 24px',
+              height: 50,
               border: 'none',
               background: 'none',
               cursor: 'pointer',
-              fontSize: 10,
+              fontSize: 13,
               fontWeight: 800,
               fontFamily: 'Nunito, sans-serif',
               color: activeTab === t.id ? 'var(--p-dark)' : 'var(--muted)',
               borderBottom: `3px solid ${activeTab === t.id ? 'var(--p)' : 'transparent'}`,
               display: 'flex',
-              flexDirection: 'column',
               alignItems: 'center',
-              gap: 3,
+              gap: 7,
               transition: 'all 0.15s',
+              whiteSpace: 'nowrap',
             }}
           >
-            <span style={{ fontSize: 19 }}>{t.icon}</span>
+            <span style={{ fontSize: 18 }}>{t.icon}</span>
             {t.label}
           </button>
         ))}
       </nav>
 
-      {/* Content */}
-      <main style={{ padding: 16, flex: 1 }} className="animate-fade-in">
+      {/* Content — full width with max 1400px */}
+      <main style={{
+        flex: 1,
+        padding: '24px 32px',
+        maxWidth: 1400,
+        width: '100%',
+        margin: '0 auto',
+        boxSizing: 'border-box',
+      }} className="animate-fade-in">
         {children}
       </main>
 
-      <footer style={{ textAlign: 'center', padding: '12px 0', fontSize: 11, color: 'var(--faint)', fontWeight: 700 }}>
+      <footer style={{ textAlign: 'center', padding: '14px 0', fontSize: 12, color: 'var(--faint)', fontWeight: 700 }}>
         LeanSpend · Eat lean. Spend less. Live fit. 💪
       </footer>
     </div>
