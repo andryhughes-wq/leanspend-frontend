@@ -27,13 +27,7 @@ body {
   font-family: 'Nunito', sans-serif;
   color: var(--text);
   min-height: 100vh;
-  background:
-    radial-gradient(ellipse 70% 55% at 18% 48%, rgba(10,42,58,0.92) 0%, transparent 65%),
-    radial-gradient(ellipse 55% 60% at 82% 18%, rgba(26,10,46,0.85) 0%, transparent 55%),
-    radial-gradient(ellipse 50% 45% at 62% 82%, rgba(4,25,16,0.75) 0%, transparent 55%),
-    radial-gradient(ellipse 60% 35% at 12% 65%, rgba(0,160,100,0.08) 0%, transparent 70%),
-    radial-gradient(ellipse 45% 55% at 88% 32%, rgba(160,50,90,0.07) 0%, transparent 65%),
-    #050a12;
+  background: #050a12;
   background-attachment: fixed;
 }
 .font-display { font-family: 'Fredoka One', cursive; }
@@ -137,3 +131,4 @@ body {
 .chip:hover    { border-color: var(--p); color: var(--p); }
 .chip.active   { background: rgba(107,203,119,0.18); border-color: var(--p); color: var(--p); }
 .chip.s-active { background: rgba(78,205,196,0.18); border-color: var(--s); color: var(--s); }
+
