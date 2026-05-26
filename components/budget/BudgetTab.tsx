@@ -29,23 +29,19 @@ const GOALS = [
   { id:'plant-based', label:'Plant-Based', desc:'Plant proteins only beans, lentils, tofu, tempeh, no meat or dairy' },
 ]
 
-function FloatBubble({ size, left, top, delay, onPop }: { size:number, left:string, top:string, delay:number, onPop:(x:number,y:number)=>void }) {
+function Bubble({ size, style, onPop }: { size: number; style: React.CSSProperties; onPop: (x:number,y:number)=>void }) {
   const [alive, setAlive] = useState(true)
-  const ref = useRef<HTMLDivElement>(null)
   if (!alive) return null
   return (
-    <div ref={ref} onClick={e => { setAlive(false); onPop(e.clientX, e.clientY) }}
-      style={{
-        position:'fixed', left, top,
-        width:size, height:size, borderRadius:'50%',
-        background:'radial-gradient(circle at 30% 25%, rgba(255,255,255,0.75) 0%, rgba(160,230,255,0.35) 35%, rgba(167,139,250,0.2) 65%, rgba(78,205,196,0.1) 100%)',
-        border:'1px solid rgba(255,255,255,0.45)',
-        boxShadow:'0 0 '+Math.round(size*0.4)+'px rgba(126,207,255,0.25), inset 0 0 '+Math.round(size*0.3)+'px rgba(255,255,255,0.15)',
-        cursor:'pointer', zIndex:3,
-        animation:'floatBubble '+(3.5+delay)+'s ease-in-out '+delay+'s infinite',
-        transition:'transform 0.1s',
-        pointerEvents:'all',
-      }} />
+    <div onClick={e => { setAlive(false); onPop(e.clientX, e.clientY) }} style={{
+      width: size, height: size, borderRadius: '50%', cursor: 'pointer',
+      background: 'radial-gradient(circle at 30% 26%, rgba(255,255,255,0.78) 0%, rgba(160,230,255,0.38) 32%, rgba(167,139,250,0.22) 62%, rgba(78,205,196,0.1) 100%)',
+      border: '1px solid rgba(255,255,255,0.42)',
+      boxShadow: '0 0 '+(size*0.45).toFixed(0)+'px rgba(126,207,255,0.28), inset 0 0 '+(size*0.3).toFixed(0)+'px rgba(255,255,255,0.15)',
+      animation: 'floatBubble '+(3.8+(size%7)*0.4).toFixed(1)+'s ease-in-out infinite',
+      transition: 'transform 0.12s',
+      ...style,
+    }} />
   )
 }
 
@@ -53,9 +49,8 @@ export function BudgetTab() {
   const { profile, setProfile } = useAppStore()
   const [income, setIncome] = useState(profile.monthlyIncome ? String(profile.monthlyIncome) : '')
   const [mode, setMode]     = useState<'individual'|'family'>(profile.householdSize > 1 ? 'family' : 'individual')
-  const [showSettings, setShowSettings] = useState(false)
-  const [pops, setPops] = useState<{id:number,x:number,y:number,text:string}[]>([])
-  const popId = useRef(0)
+  const [pops, setPops]     = useState<{id:number,x:number,y:number,text:string}[]>([])
+  const pid = useRef(0)
 
   const { mutate: calculate, isPending, data } = useMutation({
     mutationFn: () => budgetApi.calculate({
@@ -84,169 +79,130 @@ export function BudgetTab() {
     const cur = profile.preferredStores
     setProfile({ preferredStores: cur.includes(slug) ? cur.filter((s:string)=>s!==slug) : [...cur, slug] })
   }
-  const goalInfo = GOALS.find(g => g.id === (profile.fitnessGoal || 'balanced'))
 
   const addPop = (x:number, y:number, text:string) => {
-    const id = ++popId.current
-    setPops(p => [...p, { id, x, y, text }])
-    setTimeout(() => setPops(p => p.filter(t => t.id !== id)), 900)
+    const id = ++pid.current
+    setPops(p => [...p, {id,x,y,text}])
+    setTimeout(() => setPops(p => p.filter(t => t.id !== id)), 950)
   }
 
-  const bubbles = [
-    { size:44, left:'6%',  top:'22%', delay:0 },
-    { size:26, left:'88%', top:'18%', delay:1.4 },
-    { size:34, left:'4%',  top:'55%', delay:0.7 },
-    { size:20, left:'91%', top:'60%', delay:2.3 },
-    { size:30, left:'12%', top:'72%', delay:1.9 },
-    { size:18, left:'80%', top:'78%', delay:0.3 },
-    { size:15, left:'48%', top:'88%', delay:3.1 },
-    { size:38, left:'93%', top:'40%', delay:1.6 },
-    { size:22, left:'2%',  top:'38%', delay:2.7 },
-    { size:16, left:'70%', top:'12%', delay:1.1 },
+  const g = { background:'rgba(255,255,255,0.055)', backdropFilter:'blur(22px)', WebkitBackdropFilter:'blur(22px)', border:'1px solid rgba(255,255,255,0.12)', borderRadius:18, padding:18 } as React.CSSProperties
+  const lbl = { fontSize:10, fontWeight:800, color:'rgba(255,255,255,0.45)', textTransform:'uppercase' as const, letterSpacing:'0.65px', marginBottom:11 }
+
+  const BUBBLE_DEFS = [
+    { size:46, style:{ position:'fixed' as const, left:'5%',  top:'20%', animationDelay:'0s' } },
+    { size:28, style:{ position:'fixed' as const, left:'89%', top:'16%', animationDelay:'1.3s' } },
+    { size:36, style:{ position:'fixed' as const, left:'3%',  top:'52%', animationDelay:'0.6s' } },
+    { size:20, style:{ position:'fixed' as const, left:'92%', top:'58%', animationDelay:'2.2s' } },
+    { size:32, style:{ position:'fixed' as const, left:'11%', top:'74%', animationDelay:'1.8s' } },
+    { size:17, style:{ position:'fixed' as const, left:'82%', top:'80%', animationDelay:'0.2s' } },
+    { size:14, style:{ position:'fixed' as const, left:'47%', top:'90%', animationDelay:'3s'   } },
+    { size:40, style:{ position:'fixed' as const, left:'94%', top:'38%', animationDelay:'1.5s' } },
+    { size:22, style:{ position:'fixed' as const, left:'1%',  top:'36%', animationDelay:'2.6s' } },
+    { size:16, style:{ position:'fixed' as const, left:'72%', top:'10%', animationDelay:'1s'   } },
   ]
-  const popLabels = ['Pop!','Save!','Deal!','Yes!','$$$','Nice!','Boom!','Free!','Win!','Low!']
-
-  const glassCard: React.CSSProperties = {
-    background:'rgba(255,255,255,0.06)',
-    backdropFilter:'blur(24px)',
-    WebkitBackdropFilter:'blur(24px)',
-    border:'1px solid rgba(255,255,255,0.13)',
-    borderRadius:18,
-    padding:'18px 18px',
-  }
-  const secLabel: React.CSSProperties = {
-    fontSize:11, fontWeight:800, color:'rgba(255,255,255,0.5)',
-    textTransform:'uppercase', letterSpacing:'0.6px', marginBottom:12,
-  }
+  const POP_WORDS = ['Pop!','Save!','Deal!','Yes!','Win!','Nice!','Boom!','Free!','$$$','Low!']
 
   return (
-    <div style={{ position:'relative', minHeight:'100vh' }}>
-
+    <div style={{ position:'relative' }}>
       {/* Floating bubbles */}
-      {bubbles.map((b,i) => (
-        <FloatBubble key={i} {...b} onPop={(x,y) => addPop(x, y, popLabels[i])} />
+      {BUBBLE_DEFS.map((b,i) => (
+        <Bubble key={i} size={b.size} style={{ ...b.style, zIndex:3 }} onPop={(x,y) => addPop(x,y,POP_WORDS[i])} />
       ))}
 
-      {/* Pop fx */}
+      {/* Pop text fx */}
       {pops.map(p => (
         <div key={p.id} style={{
-          position:'fixed', left:p.x-20, top:p.y-40,
-          color:'#7ecfff', fontWeight:900, fontSize:22, zIndex:999,
-          animation:'floatUp 0.9s ease-out forwards', pointerEvents:'none',
-          textShadow:'0 0 12px rgba(126,207,255,0.9)',
-          fontFamily:'Nunito,sans-serif',
+          position:'fixed', left:p.x-22, top:p.y-50, pointerEvents:'none', zIndex:9999,
+          color:'#7ecfff', fontWeight:900, fontSize:22, fontFamily:'Nunito,sans-serif',
+          textShadow:'0 0 14px rgba(126,207,255,0.95)',
+          animation:'floatUp 0.95s ease-out forwards',
         }}>{p.text}</div>
       ))}
 
-      {/* Content wrapper */}
-      <div style={{ position:'relative', zIndex:10, padding:'0 28px 32px' }}>
+      <div style={{ position:'relative', zIndex:10, padding:'0 28px 36px' }}>
 
-        {/* Top bar */}
-        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'18px 0 22px' }}>
-          <div style={{ fontSize:17, fontWeight:700, color:'rgba(255,255,255,0.55)', letterSpacing:'0.3px' }}>Budget Dashboard</div>
+        {/* Top controls */}
+        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'20px 0 24px' }}>
+          <div style={{ fontSize:17, fontWeight:700, color:'rgba(255,255,255,0.5)', letterSpacing:'0.2px' }}>Budget Dashboard</div>
           <div style={{ display:'flex', gap:10, alignItems:'center' }}>
-            <button onClick={() => setShowSettings(!showSettings)} style={{
-              padding:'8px 18px', borderRadius:22, cursor:'pointer',
-              background:'rgba(255,255,255,0.08)', border:'1px solid rgba(255,255,255,0.15)',
-              color:'rgba(255,255,255,0.75)', fontSize:12, fontWeight:700, fontFamily:'Nunito,sans-serif',
-            }}>1 Pay/Month</button>
+            <button style={{ padding:'8px 18px', borderRadius:22, background:'rgba(255,255,255,0.07)', border:'1px solid rgba(255,255,255,0.13)', color:'rgba(255,255,255,0.7)', fontSize:12, fontWeight:700, cursor:'pointer', fontFamily:'Nunito,sans-serif' }}>
+              1 Pay/Month
+            </button>
             <div style={{ position:'relative' }}>
-              <span style={{ position:'absolute', left:14, top:'50%', transform:'translateY(-50%)', color:'rgba(255,255,255,0.35)', fontSize:15, fontWeight:800, pointerEvents:'none' }}>$</span>
+              <span style={{ position:'absolute', left:13, top:'50%', transform:'translateY(-50%)', color:'rgba(255,255,255,0.32)', fontSize:14, fontWeight:800, pointerEvents:'none' }}>$</span>
               <input type="number" value={income} onChange={e=>setIncome(e.target.value)}
                 onKeyDown={e=>e.key==='Enter'&&income&&calculate()}
-                placeholder="Monthly income"
-                style={{
-                  padding:'8px 14px 8px 28px', borderRadius:22, width:170,
-                  background:'rgba(255,255,255,0.08)', border:'1px solid rgba(255,255,255,0.15)',
-                  color:'white', fontSize:12, fontWeight:700, outline:'none', fontFamily:'Nunito,sans-serif',
-                }} />
+                placeholder="Ultra Calc Salary"
+                style={{ padding:'8px 14px 8px 27px', borderRadius:22, width:175, background:'rgba(255,255,255,0.07)', border:'1px solid rgba(255,255,255,0.13)', color:'white', fontSize:12, fontWeight:700, outline:'none', fontFamily:'Nunito,sans-serif' }} />
             </div>
             <button onClick={()=>income&&calculate()} disabled={isPending||!income} style={{
-              padding:'8px 20px', borderRadius:22, cursor:isPending||!income?'not-allowed':'pointer',
-              background:isPending||!income?'rgba(107,203,119,0.25)':'var(--p)',
-              border:'none', color:'white', fontSize:12, fontWeight:800, fontFamily:'Nunito,sans-serif',
-              opacity:isPending||!income?0.5:1,
-            }}>{isPending ? '...' : 'Ultra Calc'}</button>
+              padding:'8px 20px', borderRadius:22,
+              background:isPending||!income?'rgba(107,203,119,0.22)':'var(--p)',
+              border:'none', color:'white', fontSize:12, fontWeight:800, cursor:isPending||!income?'not-allowed':'pointer',
+              opacity:isPending||!income?0.5:1, fontFamily:'Nunito,sans-serif',
+            }}>{isPending?'...':'Ultra Calc'}</button>
           </div>
         </div>
 
         {/* ORB HERO */}
-        <div style={{ position:'relative', display:'flex', alignItems:'center', justifyContent:'center', height:360, marginBottom:28 }}>
-
+        <div style={{ position:'relative', display:'flex', alignItems:'center', justifyContent:'center', height:370, marginBottom:30 }}>
           {/* Orbital rings */}
-          <div style={{
-            position:'absolute', width:520, height:160, borderRadius:'50%',
-            border:'1px solid rgba(0,210,255,0.12)',
-            transform:'rotateX(76deg)',
-            animation:'orbitSpin 22s linear infinite',
-            pointerEvents:'none',
-          }} />
-          <div style={{
-            position:'absolute', width:440, height:130, borderRadius:'50%',
-            border:'1px solid rgba(126,207,255,0.08)',
-            transform:'rotateX(76deg) rotateZ(55deg)',
-            animation:'orbitSpinRev 16s linear infinite',
-            pointerEvents:'none',
-          }} />
-          <div style={{
-            position:'absolute', width:600, height:190, borderRadius:'50%',
-            border:'1px solid rgba(78,205,196,0.07)',
-            transform:'rotateX(76deg) rotateZ(110deg)',
-            animation:'orbitSpin 30s linear infinite',
-            pointerEvents:'none',
-          }} />
+          {[
+            { w:530, h:162, d:'22s', rev:false, extra:'' },
+            { w:450, h:135, d:'16s', rev:true,  extra:' rotateZ(55deg)' },
+            { w:610, h:192, d:'32s', rev:false,  extra:' rotateZ(110deg)' },
+          ].map((r,i) => (
+            <div key={i} style={{
+              position:'absolute', borderRadius:'50%', pointerEvents:'none',
+              width:r.w, height:r.h,
+              border:'1px solid rgba(0,210,255,'+(0.13-i*0.03)+')',
+              transform:'rotateX(76deg)'+r.extra,
+              animation:(r.rev?'orbitSpinRev':'orbitSpin')+' '+r.d+' linear infinite',
+            }} />
+          ))}
 
-          {/* Glow backdrop */}
-          <div style={{
-            position:'absolute', width:280, height:280, borderRadius:'50%',
-            background:'radial-gradient(circle, rgba(0,200,255,0.15) 0%, transparent 70%)',
-            pointerEvents:'none',
-            animation:'orbPulse 3s ease-in-out infinite',
-          }} />
+          {/* Glow halo */}
+          <div style={{ position:'absolute', width:300, height:300, borderRadius:'50%', background:'radial-gradient(circle, rgba(0,200,255,0.14) 0%, transparent 70%)', pointerEvents:'none', animation:'orbPulse 3s ease-in-out infinite' }} />
 
-          {/* Stat floats */}
-          <div style={{ position:'absolute', left:'7%', top:'14%', textAlign:'center' }}>
-            <div style={{ fontSize:12, color:'rgba(255,255,255,0.45)', fontWeight:700, marginBottom:2 }}>Savings</div>
-            <div style={{ fontSize:30, fontWeight:900, color:'white', lineHeight:1 }}>{savings || 540}</div>
-          </div>
-          <div style={{ position:'absolute', right:'7%', top:'14%', textAlign:'center' }}>
-            <div style={{ fontSize:12, color:'rgba(255,255,255,0.45)', fontWeight:700, marginBottom:2 }}>Over Budget</div>
-            <div style={{ fontSize:30, fontWeight:900, color:'white', lineHeight:1 }}>{budget || 950}</div>
-          </div>
-          <div style={{ position:'absolute', left:'9%', bottom:'14%', textAlign:'center' }}>
-            <div style={{ fontSize:12, color:'rgba(255,255,255,0.45)', fontWeight:700, marginBottom:2 }}>Over Budget</div>
-            <div style={{ fontSize:30, fontWeight:900, color:'white', lineHeight:1 }}>{perDay || 522}</div>
-          </div>
-          <div style={{ position:'absolute', right:'7%', bottom:'14%', textAlign:'center' }}>
-            <div style={{ fontSize:12, color:'rgba(255,255,255,0.45)', fontWeight:700, marginBottom:2 }}>Over Budget</div>
-            <div style={{ fontSize:30, fontWeight:900, color:'white', lineHeight:1 }}>{perWeek || 455}</div>
-          </div>
+          {/* Stats */}
+          {[
+            { label:'Savings',      val:savings||540, pos:{ left:'7%',  top:'15%' } },
+            { label:'Over Budget',  val:budget||950,  pos:{ right:'7%', top:'15%' } },
+            { label:'Over Budget',  val:perDay||522,  pos:{ left:'9%',  bottom:'13%' } },
+            { label:'Over Budget',  val:perWeek||455, pos:{ right:'7%', bottom:'13%' } },
+          ].map((s,i) => (
+            <div key={i} style={{ position:'absolute', textAlign:'center', ...s.pos }}>
+              <div style={{ fontSize:12, color:'rgba(255,255,255,0.42)', fontWeight:700, marginBottom:3 }}>{s.label}</div>
+              <div style={{ fontSize:32, fontWeight:900, color:'white', lineHeight:1 }}>{s.val}</div>
+            </div>
+          ))}
 
-          {/* Main Orb */}
+          {/* Main orb */}
           <div onClick={e => addPop(e.clientX, e.clientY, '$'+(budget||490)+'!')} style={{
             position:'relative', zIndex:20,
-            width:210, height:210, borderRadius:'50%',
-            background:'radial-gradient(circle at 28% 26%, #b8f4ff 0%, #40caf0 20%, #1a7fd4 48%, #0d3a80 72%, #060f2e 100%)',
-            boxShadow:'0 0 90px rgba(0,200,255,0.65), 0 0 180px rgba(0,150,255,0.32), 0 0 260px rgba(0,100,200,0.15), inset 0 0 70px rgba(255,255,255,0.18)',
+            width:215, height:215, borderRadius:'50%',
+            background:'radial-gradient(circle at 28% 25%, #c2f5ff 0%, #44ccf2 18%, #1a80d8 46%, #0c3882 70%, #040e2a 100%)',
+            boxShadow:'0 0 90px rgba(0,200,255,0.62), 0 0 180px rgba(0,150,255,0.3), 0 0 260px rgba(0,100,200,0.13), inset 0 0 70px rgba(255,255,255,0.16)',
             display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center',
-            cursor:'pointer',
-            animation:'orbPulse 3s ease-in-out infinite',
+            cursor:'pointer', animation:'orbPulse 3s ease-in-out infinite',
+            userSelect:'none',
           }}>
-            <div style={{ fontSize:11, color:'rgba(255,255,255,0.7)', fontWeight:700, letterSpacing:1.5, textTransform:'uppercase', marginBottom:4 }}>Lean Core Oro</div>
-            <div style={{ fontSize:50, fontWeight:900, color:'white', lineHeight:1, textShadow:'0 0 30px rgba(255,255,255,0.5)' }}>${budget||490}</div>
-            <div style={{ fontSize:13, color:'rgba(255,255,255,0.65)', fontWeight:700, marginTop:4 }}>Food Budget</div>
+            <div style={{ fontSize:10, color:'rgba(255,255,255,0.68)', fontWeight:700, letterSpacing:2, textTransform:'uppercase', marginBottom:5 }}>Lean Core Oro</div>
+            <div style={{ fontSize:52, fontWeight:900, color:'white', lineHeight:1, textShadow:'0 0 30px rgba(255,255,255,0.45)' }}>${budget||490}</div>
+            <div style={{ fontSize:13, color:'rgba(255,255,255,0.6)', fontWeight:700, marginTop:5 }}>Food Budget</div>
           </div>
         </div>
 
-        {/* Bottom glass cards row */}
-        <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:16, marginBottom:20 }}>
+        {/* 4 bottom glass cards */}
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:16, marginBottom:22 }}>
 
-          {/* Who are you budgeting for */}
-          <div style={glassCard}>
-            <div style={secLabel}>Who are you budgeting for?</div>
+          {/* Who budgeting for */}
+          <div style={g}>
+            <div style={lbl}>Who are you budgeting for?</div>
             {[
-              { id:'individual', label:'Profile',      sub:'Individual' },
-              { id:'family',     label:'Access Store', sub:'Family' },
+              { id:'individual', label:'Profile',      sub:'' },
+              { id:'family',     label:'Access Store', sub:'' },
             ].map(m => (
               <button key={m.id} onClick={() => {
                 setMode(m.id as any)
@@ -255,100 +211,92 @@ export function BudgetTab() {
               }} style={{
                 display:'flex', alignItems:'center', justifyContent:'space-between',
                 width:'100%', padding:'9px 12px', marginBottom:7, borderRadius:11,
-                background:mode===m.id?'rgba(107,203,119,0.18)':'rgba(255,255,255,0.04)',
-                border:'1px solid '+(mode===m.id?'rgba(107,203,119,0.45)':'rgba(255,255,255,0.08)'),
-                color:'rgba(255,255,255,0.8)', fontSize:12, fontWeight:700,
+                background:mode===m.id?'rgba(107,203,119,0.16)':'rgba(255,255,255,0.03)',
+                border:'1px solid '+(mode===m.id?'rgba(107,203,119,0.42)':'rgba(255,255,255,0.07)'),
+                color:'rgba(255,255,255,0.78)', fontSize:12, fontWeight:700,
                 cursor:'pointer', fontFamily:'Nunito,sans-serif', textAlign:'left',
               }}>
-                <span>{m.label}</span>
-                <span style={{ color:'rgba(255,255,255,0.35)', fontSize:14 }}>{'>'}</span>
+                <span>{m.label}</span><span style={{ color:'rgba(255,255,255,0.3)' }}>&#62;</span>
               </button>
             ))}
             {mode==='family' && (
-              <div style={{ display:'flex', flexWrap:'wrap', gap:4, marginTop:6 }}>
-                {[2,3,4,5,6,7,8].map(n => (
-                  <button key={n} onClick={() => setProfile({ householdSize:n })} style={{
-                    width:28, height:28, borderRadius:8, fontSize:12, fontWeight:800,
-                    border:'1px solid '+(profile.householdSize===n?'var(--p)':'rgba(255,255,255,0.15)'),
+              <div style={{ display:'flex', flexWrap:'wrap', gap:4, marginTop:4 }}>
+                {[2,3,4,5,6,7,8].map(n=>(
+                  <button key={n} onClick={()=>setProfile({householdSize:n})} style={{
+                    width:28, height:28, borderRadius:8, fontSize:11, fontWeight:800,
+                    border:'1px solid '+(profile.householdSize===n?'var(--p)':'rgba(255,255,255,0.12)'),
                     background:profile.householdSize===n?'rgba(107,203,119,0.2)':'transparent',
-                    color:profile.householdSize===n?'var(--p)':'rgba(255,255,255,0.5)',
+                    color:profile.householdSize===n?'var(--p)':'rgba(255,255,255,0.45)',
                     cursor:'pointer', fontFamily:'Nunito,sans-serif',
                   }}>{n}</button>
                 ))}
               </div>
             )}
+            <div style={{ marginTop:10, display:'flex', alignItems:'center', gap:8 }}>
+              <div style={{ fontSize:10, color:'rgba(255,255,255,0.35)', fontWeight:700 }}>?</div>
+            </div>
           </div>
 
           {/* Fitness Goal */}
-          <div style={glassCard}>
-            <div style={secLabel}>Fitness Goal</div>
-            <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
-              {GOALS.slice(0,2).map(g => (
-                <div key={g.id} style={{ display:'flex', alignItems:'center', gap:12 }}>
-                  <div onClick={() => setProfile({ fitnessGoal:g.id })} style={{
+          <div style={g}>
+            <div style={lbl}>Fitness Goal</div>
+            <div style={{ display:'flex', flexDirection:'column', gap:11 }}>
+              {GOALS.slice(0,2).map(gl => (
+                <div key={gl.id} style={{ display:'flex', alignItems:'center', gap:11 }}>
+                  <div onClick={()=>setProfile({fitnessGoal:gl.id})} style={{
                     width:38, height:21, borderRadius:11, cursor:'pointer', position:'relative', flexShrink:0,
-                    background:profile.fitnessGoal===g.id?'var(--p)':'rgba(255,255,255,0.15)',
-                    transition:'background 0.2s', border:'none',
+                    background:profile.fitnessGoal===gl.id?'var(--p)':'rgba(255,255,255,0.14)', transition:'background 0.2s',
                   }}>
-                    <div style={{
-                      position:'absolute', top:2.5,
-                      left:profile.fitnessGoal===g.id?18:3,
-                      width:16, height:16, borderRadius:'50%', background:'white',
-                      transition:'left 0.2s', boxShadow:'0 1px 4px rgba(0,0,0,0.3)',
-                    }} />
+                    <div style={{ position:'absolute', top:2.5, left:profile.fitnessGoal===gl.id?18:3, width:16, height:16, borderRadius:'50%', background:'white', transition:'left 0.2s', boxShadow:'0 1px 4px rgba(0,0,0,0.25)' }} />
                   </div>
-                  <span style={{ fontSize:12, color:'rgba(255,255,255,0.7)', fontWeight:700 }}>{g.label}</span>
+                  <span style={{ fontSize:12, color:'rgba(255,255,255,0.65)', fontWeight:700 }}>{gl.label}</span>
                 </div>
               ))}
             </div>
-            <div style={{ marginTop:12 }}>
-              <div style={{ display:'flex', flexWrap:'wrap', gap:5 }}>
-                {GOALS.map(g => (
-                  <button key={g.id} onClick={() => setProfile({ fitnessGoal:g.id })} style={{
-                    padding:'3px 10px', borderRadius:14, fontSize:10, fontWeight:800,
-                    border:'1px solid '+(profile.fitnessGoal===g.id?'var(--p)':'rgba(255,255,255,0.15)'),
-                    background:profile.fitnessGoal===g.id?'rgba(107,203,119,0.2)':'transparent',
-                    color:profile.fitnessGoal===g.id?'var(--p)':'rgba(255,255,255,0.45)',
-                    cursor:'pointer', fontFamily:'Nunito,sans-serif',
-                  }}>{g.label}</button>
-                ))}
-              </div>
+            <div style={{ marginTop:12, display:'flex', flexWrap:'wrap', gap:5 }}>
+              {GOALS.map(gl => (
+                <button key={gl.id} onClick={()=>setProfile({fitnessGoal:gl.id})} style={{
+                  padding:'3px 10px', borderRadius:14, fontSize:10, fontWeight:800,
+                  border:'1px solid '+(profile.fitnessGoal===gl.id?'var(--p)':'rgba(255,255,255,0.13)'),
+                  background:profile.fitnessGoal===gl.id?'rgba(107,203,119,0.18)':'transparent',
+                  color:profile.fitnessGoal===gl.id?'var(--p)':'rgba(255,255,255,0.4)',
+                  cursor:'pointer', fontFamily:'Nunito,sans-serif',
+                }}>{gl.label}</button>
+              ))}
             </div>
           </div>
 
-          {/* Allergy & Dye Filters */}
-          <div style={glassCard}>
-            <div style={secLabel}>Allergy & Dye Filters</div>
-            <div style={{ display:'flex', flexWrap:'wrap', gap:7, marginBottom:10 }}>
+          {/* Allergy & Dye */}
+          <div style={g}>
+            <div style={lbl}>Allergy & Dye Filters</div>
+            <div style={{ display:'flex', flexWrap:'wrap', gap:7, marginBottom:12 }}>
               {ALLERGENS.map(a => {
                 const key = a.toLowerCase()
                 const on  = profile.allergies.includes(key)
                 return (
-                  <div key={a} onClick={() => toggle('allergies', key)} style={{
-                    width:26, height:26, borderRadius:'50%', cursor:'pointer',
+                  <div key={a} onClick={()=>toggle('allergies',key)} title={a} style={{
+                    width:26, height:26, borderRadius:'50%', cursor:'pointer', flexShrink:0,
                     background:on
-                      ? 'radial-gradient(circle at 33% 30%, rgba(255,255,255,0.85), rgba(126,207,255,0.55) 50%, rgba(78,205,196,0.3))'
-                      : 'radial-gradient(circle at 33% 30%, rgba(255,255,255,0.5), rgba(167,139,250,0.2) 50%, rgba(78,205,196,0.1))',
-                    border:'1px solid rgba(255,255,255,'+(on?'0.55':'0.25')+')',
-                    boxShadow:on?'0 0 12px rgba(126,207,255,0.45)':'none',
-                    transition:'all 0.2s',
-                    display:'flex', alignItems:'center', justifyContent:'center',
-                    fontSize:8, color:'rgba(0,0,0,0.6)', fontWeight:800,
-                  }} title={a}></div>
+                      ? 'radial-gradient(circle at 32% 28%, rgba(255,255,255,0.88), rgba(126,207,255,0.55) 48%, rgba(78,205,196,0.28))'
+                      : 'radial-gradient(circle at 32% 28%, rgba(255,255,255,0.52), rgba(167,139,250,0.2) 48%, rgba(78,205,196,0.1))',
+                    border:'1px solid rgba(255,255,255,'+(on?'0.52':'0.22')+')',
+                    boxShadow:on?'0 0 10px rgba(126,207,255,0.42)':'none',
+                    transition:'all 0.18s',
+                  }} />
                 )
               })}
             </div>
-            <div style={{ fontSize:10, color:'rgba(255,255,255,0.35)', fontWeight:700, marginBottom:6, letterSpacing:'0.4px', textTransform:'uppercase' }}>Dyes</div>
+            <div style={{ fontSize:10, color:'rgba(255,255,255,0.32)', fontWeight:700, marginBottom:6, letterSpacing:'0.5px', textTransform:'uppercase' }}>Synthetic Dyes</div>
             <div style={{ display:'flex', flexWrap:'wrap', gap:5 }}>
               {DYES.map(d => {
                 const key = d.toLowerCase().replace(/\s/g,'_').replace(/#/g,'')
                 const on  = profile.dyeFilters.includes(key)
                 return (
-                  <button key={d} onClick={() => toggle('dyeFilters', key)} style={{
+                  <button key={d} onClick={()=>toggle('dyeFilters',key)} style={{
                     padding:'3px 9px', borderRadius:14, fontSize:10, fontWeight:800,
-                    border:'1px solid '+(on?'rgba(255,230,109,0.6)':'rgba(255,255,255,0.15)'),
-                    background:on?'rgba(255,230,109,0.15)':'transparent',
-                    color:on?'#FFE66D':'rgba(255,255,255,0.4)',
+                    border:'1px solid '+(on?'rgba(255,230,109,0.55)':'rgba(255,255,255,0.13)'),
+                    background:on?'rgba(255,230,109,0.14)':'transparent',
+                    color:on?'#FFE66D':'rgba(255,255,255,0.38)',
                     cursor:'pointer', fontFamily:'Nunito,sans-serif',
                   }}>{d}</button>
                 )
@@ -357,23 +305,23 @@ export function BudgetTab() {
           </div>
 
           {/* Store Deal Tracking */}
-          <div style={glassCard}>
-            <div style={secLabel}>Store Deal Tracking</div>
-            <div style={{ display:'flex', flexDirection:'column', gap:7, marginBottom:10 }}>
+          <div style={g}>
+            <div style={lbl}>Store Deal Tracking</div>
+            <div style={{ display:'flex', flexDirection:'column', gap:8, marginBottom:11 }}>
               {[
-                { slug:'kroger',  color:'linear-gradient(90deg, #ef4444, #dc2626)', label:'Kroger' },
-                { slug:'walmart', color:'linear-gradient(90deg, #3b82f6, #2563eb)', label:'Walmart' },
-                { slug:'heb',     color:'linear-gradient(90deg, #f97316, #ea580c)', label:'HEB' },
+                { slug:'kroger',  color:'linear-gradient(90deg,#ef4444,#dc2626)', label:'Kroger' },
+                { slug:'walmart', color:'linear-gradient(90deg,#3b82f6,#2563eb)', label:'Walmart' },
+                { slug:'heb',     color:'linear-gradient(90deg,#f97316,#ea580c)', label:'HEB' },
               ].map(s => {
                 const on = profile.preferredStores.includes(s.slug)
                 return (
-                  <div key={s.slug} onClick={() => toggleStore(s.slug)} style={{ cursor:'pointer' }}>
-                    <div style={{ display:'flex', justifyContent:'space-between', fontSize:10, color:'rgba(255,255,255,0.5)', fontWeight:700, marginBottom:3 }}>
+                  <div key={s.slug} onClick={()=>toggleStore(s.slug)} style={{ cursor:'pointer' }}>
+                    <div style={{ display:'flex', justifyContent:'space-between', fontSize:10, color:'rgba(255,255,255,0.48)', fontWeight:700, marginBottom:3 }}>
                       <span>{s.label}</span>
-                      <span style={{ color:on?'var(--p)':'rgba(255,255,255,0.25)' }}>{on?'Active':'Off'}</span>
+                      <span style={{ color:on?'var(--p)':'rgba(255,255,255,0.22)' }}>{on?'Active':'Off'}</span>
                     </div>
-                    <div style={{ height:7, borderRadius:4, background:'rgba(255,255,255,0.08)', overflow:'hidden' }}>
-                      <div style={{ height:'100%', width:on?'100%':'30%', borderRadius:4, background:s.color, transition:'width 0.4s', opacity:on?1:0.3 }} />
+                    <div style={{ height:6, borderRadius:3, background:'rgba(255,255,255,0.07)', overflow:'hidden' }}>
+                      <div style={{ height:'100%', width:on?'100%':'25%', background:s.color, borderRadius:3, transition:'width 0.4s', opacity:on?1:0.25 }} />
                     </div>
                   </div>
                 )
@@ -383,11 +331,11 @@ export function BudgetTab() {
               {STORES.map(s => {
                 const on = profile.preferredStores.includes(s.slug)
                 return (
-                  <button key={s.slug} onClick={() => toggleStore(s.slug)} style={{
+                  <button key={s.slug} onClick={()=>toggleStore(s.slug)} style={{
                     padding:'3px 9px', borderRadius:14, fontSize:10, fontWeight:800,
-                    border:'1px solid '+(on?'var(--s)':'rgba(255,255,255,0.15)'),
-                    background:on?'rgba(78,205,196,0.18)':'transparent',
-                    color:on?'var(--s)':'rgba(255,255,255,0.4)',
+                    border:'1px solid '+(on?'var(--s)':'rgba(255,255,255,0.13)'),
+                    background:on?'rgba(78,205,196,0.16)':'transparent',
+                    color:on?'var(--s)':'rgba(255,255,255,0.38)',
                     cursor:'pointer', fontFamily:'Nunito,sans-serif',
                   }}>{s.label}</button>
                 )
