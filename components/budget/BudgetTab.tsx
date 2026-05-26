@@ -13,18 +13,18 @@ const STORES    = [
   { slug:'walmart',    label:'Walmart' },
   { slug:'heb',        label:'HEB' },
   { slug:'target',     label:'Target' },
-  { slug:'aldi',       label:'›’ Aldi' },
+  { slug:'aldi',       label:'Aldi' },
   { slug:'wholefoods', label:'Whole Foods' },
   { slug:'sprouts',    label:'Sprouts' },
   { slug:'randalls',   label:'Randalls' },
-  { slug:'safeway',    label:'› Safeway' },
+  { slug:'safeway',    label:'Safeway' },
   { slug:'costco',     label:'Costco' },
   { slug:'samsclub', label:'Sams Club' },
 ]
 const GOALS = [
-  { id:'balanced',    label:'– Balanced',   desc:'Balanced macros ~2,000 cal/day â€” 30% protein, 45% carbs, 25% fat' },
-  { id:'muscle-gain', label:'’ Muscle Gain', desc:'High protein 140g+/day â€” chicken, eggs, Greek yogurt, cottage cheese' },
-  { id:'weight-loss', label:'” Weight Loss', desc:'Low calorie 1,400/day â€” high fiber, lean protein, lots of vegetables' },
+  { id:'balanced',    label:'Balanced',   desc:'Balanced macros ~2,000 cal/day â€” 30% protein, 45% carbs, 25% fat' },
+  { id:'muscle-gain', label:'Muscle Gain', desc:'High protein 140g+/day â€” chicken, eggs, Greek yogurt, cottage cheese' },
+  { id:'weight-loss', label:'Weight Loss', desc:'Low calorie 1,400/day â€” high fiber, lean protein, lots of vegetables' },
   { id:'endurance',   label:'Endurance',   desc:'High carb 55â€“60% â€” oats, sweet potato, brown rice, bananas' },
   { id:'plant-based', label:'Plant-Based', desc:'Plant proteins only â€” beans, lentils, tofu, tempeh, no meat or dairy' },
 ]
@@ -85,8 +85,8 @@ export function BudgetTab() {
           <div style={secTitle}>ðŸ‘¤ Who are you budgeting for?</div>
           <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, marginBottom:14 }}>
             {[
-              { id:'individual', label:'‘ Just Me',   sub:'Individual plan' },
-              { id:'family',     label:'‘€‘€‘ Family',    sub:'2â€“10 people' },
+              { id:'individual', label:'Just Me',   sub:'Individual plan' },
+              { id:'family',     label:'Family',    sub:'2â€“10 people' },
             ].map(m => (
               <button key={m.id} onClick={() => {
                 setMode(m.id as any)
