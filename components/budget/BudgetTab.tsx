@@ -1,5 +1,5 @@
 ﻿'use client'
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useMutation } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
 import { budgetApi } from '@/lib/api'
@@ -28,31 +28,113 @@ const GOALS = [
   { id:'endurance',   label:'Endurance',   desc:'High carb 55-60% oats, sweet potato, brown rice, bananas' },
   { id:'plant-based', label:'Plant-Based', desc:'Plant proteins only beans, lentils, tofu, tempeh, no meat or dairy' },
 ]
-
 const EXPENSE_PRESETS = [
-  { label:'Rent / Mortgage',  category:'Housing',       default:1200 },
-  { label:'Car Payment',      category:'Transport',     default:350  },
-  { label:'Utilities',        category:'Utilities',     default:150  },
-  { label:'Insurance',        category:'Insurance',     default:200  },
-  { label:'Subscriptions',    category:'Subscriptions', default:50   },
+  { label:'Rent / Mortgage', category:'Housing',       default:1200 },
+  { label:'Car Payment',     category:'Transport',     default:350  },
+  { label:'Utilities',       category:'Utilities',     default:150  },
+  { label:'Insurance',       category:'Insurance',     default:200  },
+  { label:'Subscriptions',   category:'Subscriptions', default:50   },
 ]
 const QUICK_ADD = [
-  { label:'Student Loans', category:'Debt',          default:300 },
-  { label:'Phone Bill',    category:'Utilities',     default:80  },
-  { label:'Internet',      category:'Utilities',     default:60  },
-  { label:'Gym',           category:'Health',        default:45  },
-  { label:'Childcare',     category:'Family',        default:800 },
-  { label:'Medical',       category:'Health',        default:100 },
-  { label:'Savings',       category:'Savings',       default:200 },
-  { label:'Debt Payment',  category:'Debt',          default:250 },
-  { label:'Entertainment', category:'Lifestyle',     default:100 },
-  { label:'Clothing',      category:'Lifestyle',     default:80  },
+  { label:'Student Loans', category:'Debt',       default:300 },
+  { label:'Phone Bill',    category:'Utilities',  default:80  },
+  { label:'Internet',      category:'Utilities',  default:60  },
+  { label:'Gym',           category:'Health',     default:45  },
+  { label:'Childcare',     category:'Family',     default:800 },
+  { label:'Medical',       category:'Health',     default:100 },
+  { label:'Savings',       category:'Savings',    default:200 },
+  { label:'Debt Payment',  category:'Debt',       default:250 },
+  { label:'Entertainment', category:'Lifestyle',  default:100 },
+  { label:'Clothing',      category:'Lifestyle',  default:80  },
 ]
 const CAT_COLORS: Record<string,string> = {
   Housing:'#ff6b6b', Transport:'#f97316', Utilities:'#FFE66D',
   Insurance:'#A78BFA', Subscriptions:'#4ECDC4', Debt:'#ff8fab',
   Health:'#6BCB77', Family:'#38bdf8', Savings:'#34d399',
   Lifestyle:'#c084fc', Other:'#94a3b8',
+}
+
+function ChibiModal({ onClose }: { onClose: () => void }) {
+  useEffect(() => {
+    const t = setTimeout(onClose, 4000)
+    return () => clearTimeout(t)
+  }, [onClose])
+
+  return (
+    <div onClick={onClose} style={{
+      position:'fixed', inset:0, zIndex:9999,
+      display:'flex', alignItems:'center', justifyContent:'center',
+      background:'rgba(0,0,0,0.5)', backdropFilter:'blur(4px)',
+      animation:'fadeIn 0.3s ease-out',
+      cursor:'pointer',
+    }}>
+      <div style={{
+        background:'rgba(10,18,35,0.95)',
+        border:'1px solid rgba(255,255,255,0.15)',
+        borderRadius:24, padding:'28px 36px',
+        textAlign:'center',
+        boxShadow:'0 0 80px rgba(107,203,119,0.3)',
+        animation:'bounceSoft 0.4s cubic-bezier(0.34,1.56,0.64,1)',
+      }}>
+        <svg width="200" height="200" viewBox="0 0 200 200" style={{ display:'block', margin:'0 auto' }}>
+          {/* Bowl */}
+          <ellipse cx="100" cy="168" rx="55" ry="16" fill="#2a1a0a" stroke="#8B4513" strokeWidth="2"/>
+          <path d="M46 155 Q46 175 100 178 Q154 175 154 155 L148 140 Q100 150 52 140 Z" fill="#4a2c0a" stroke="#8B4513" strokeWidth="1.5"/>
+          {/* Spaghetti swirls */}
+          <g style={{ animation:'spin 1.5s linear infinite', transformOrigin:'100px 148px' }}>
+            <path d="M70 148 Q80 138 90 148 Q100 158 110 148 Q120 138 130 148" fill="none" stroke="#f4a460" strokeWidth="3" strokeLinecap="round"/>
+            <path d="M65 155 Q78 143 88 155 Q100 165 112 155 Q122 143 135 155" fill="none" stroke="#daa520" strokeWidth="2.5" strokeLinecap="round"/>
+            <path d="M75 142 Q88 132 98 142 Q108 152 118 142 Q128 132 138 142" fill="none" stroke="#f4a460" strokeWidth="2" strokeLinecap="round"/>
+            <circle cx="85" cy="150" r="3" fill="#cc2200"/>
+            <circle cx="105" cy="143" r="3" fill="#cc2200"/>
+            <circle cx="118" cy="152" r="3" fill="#cc2200"/>
+            <circle cx="95" cy="158" r="2.5" fill="#cc2200"/>
+          </g>
+          {/* Chibi body */}
+          <ellipse cx="100" cy="125" rx="22" ry="18" fill="#ffe0bd" stroke="#e8c4a0" strokeWidth="1.5"/>
+          {/* Chibi head */}
+          <circle cx="100" cy="88" r="32" fill="#ffe0bd" stroke="#e8c4a0" strokeWidth="2"/>
+          {/* Hair */}
+          <path d="M68 80 Q72 58 100 56 Q128 58 132 80 Q120 65 100 64 Q80 65 68 80 Z" fill="#3d2b1f"/>
+          <path d="M68 80 Q62 75 64 65 Q66 60 72 62 Z" fill="#3d2b1f"/>
+          <path d="M132 80 Q138 75 136 65 Q134 60 128 62 Z" fill="#3d2b1f"/>
+          {/* Eyes - happy squint */}
+          <path d="M85 88 Q88 84 91 88" fill="none" stroke="#3d2b1f" strokeWidth="2.5" strokeLinecap="round"/>
+          <path d="M109 88 Q112 84 115 88" fill="none" stroke="#3d2b1f" strokeWidth="2.5" strokeLinecap="round"/>
+          {/* Rosy cheeks */}
+          <circle cx="82" cy="94" r="7" fill="rgba(255,150,150,0.35)"/>
+          <circle cx="118" cy="94" r="7" fill="rgba(255,150,150,0.35)"/>
+          {/* Smile */}
+          <path d="M90 100 Q100 108 110 100" fill="none" stroke="#c0706a" strokeWidth="2.5" strokeLinecap="round"/>
+          {/* Left arm + fork */}
+          <line x1="78" y1="118" x2="58" y2="140" stroke="#ffe0bd" strokeWidth="10" strokeLinecap="round"/>
+          <line x1="58" y1="140" x2="55" y2="155" stroke="#aaa" strokeWidth="3" strokeLinecap="round"/>
+          <line x1="52" y1="155" x2="50" y2="165" stroke="#aaa" strokeWidth="2" strokeLinecap="round"/>
+          <line x1="55" y1="155" x2="53" y2="165" stroke="#aaa" strokeWidth="2" strokeLinecap="round"/>
+          <line x1="58" y1="155" x2="56" y2="165" stroke="#aaa" strokeWidth="2" strokeLinecap="round"/>
+          <line x1="61" y1="155" x2="59" y2="165" stroke="#aaa" strokeWidth="2" strokeLinecap="round"/>
+          {/* Right arm + fork */}
+          <line x1="122" y1="118" x2="142" y2="140" stroke="#ffe0bd" strokeWidth="10" strokeLinecap="round"/>
+          <line x1="142" y1="140" x2="145" y2="155" stroke="#aaa" strokeWidth="3" strokeLinecap="round"/>
+          <line x1="139" y1="155" x2="137" y2="165" stroke="#aaa" strokeWidth="2" strokeLinecap="round"/>
+          <line x1="142" y1="155" x2="140" y2="165" stroke="#aaa" strokeWidth="2" strokeLinecap="round"/>
+          <line x1="145" y1="155" x2="143" y2="165" stroke="#aaa" strokeWidth="2" strokeLinecap="round"/>
+          <line x1="148" y1="155" x2="146" y2="165" stroke="#aaa" strokeWidth="2" strokeLinecap="round"/>
+          {/* Stars around */}
+          <text x="30" y="70" fontSize="16" fill="#FFE66D" style={{ animation:'pulse 1s infinite' }}>*</text>
+          <text x="158" y="65" fontSize="12" fill="#4ECDC4">*</text>
+          <text x="22" y="110" fontSize="10" fill="#ff6b6b">*</text>
+          <text x="168" y="105" fontSize="14" fill="#A78BFA">*</text>
+        </svg>
+        <div style={{ marginTop:12, fontSize:18, fontWeight:900, color:'white', fontFamily:'Nunito,sans-serif' }}>
+          Cooking up your budget!
+        </div>
+        <div style={{ fontSize:12, color:'rgba(255,255,255,0.5)', fontWeight:700, marginTop:4, fontFamily:'Nunito,sans-serif' }}>
+          Click to dismiss
+        </div>
+      </div>
+    </div>
+  )
 }
 
 function Bubble({ size, style, onPop }: { size:number; style:React.CSSProperties; onPop:(x:number,y:number)=>void }) {
@@ -81,15 +163,15 @@ export function BudgetTab() {
   )
   const [customLabel, setCustomLabel] = useState('')
   const [showCustom, setShowCustom]   = useState(false)
+  const [showChibi, setShowChibi]     = useState(false)
   const [pops, setPops] = useState<{id:number,x:number,y:number,text:string}[]>([])
   const pid = useRef(0)
 
-  const totalExpenses  = expenses.reduce((s,e) => s + (e.amount||0), 0)
+  const totalExpenses  = expenses.reduce((s,e) => s+(e.amount||0), 0)
   const incomeNum      = Number(income) || 0
   const disposable     = Math.max(0, incomeNum - totalExpenses)
   const overBudget     = incomeNum > 0 && totalExpenses > incomeNum
-  const foodPct        = disposable > 0 ? 0.28 : 0
-  const calculatedFood = Math.round(disposable * foodPct)
+  const calculatedFood = Math.round(disposable * 0.28)
   const budget         = calculatedFood || profile.foodBudget || 0
   const withDeals      = Math.round(budget * 0.74)
   const dealSavings    = budget - withDeals
@@ -99,38 +181,30 @@ export function BudgetTab() {
 
   const { mutate: calculate, isPending } = useMutation({
     mutationFn: () => budgetApi.calculate({
-      monthlyIncome: incomeNum,
-      totalExpenses,
-      disposableIncome: disposable,
-      householdSize: profile.householdSize,
-      fitnessGoal: profile.fitnessGoal,
+      monthlyIncome: incomeNum, totalExpenses, disposableIncome: disposable,
+      householdSize: profile.householdSize, fitnessGoal: profile.fitnessGoal,
     }),
     onSuccess: d => {
-      const fb = d.recommendedFoodBudget || calculatedFood
-      setProfile({ monthlyIncome:incomeNum, foodBudget:fb, expenses })
-      toast.success('Budget calculated! $'+fb+'/mo')
+      setProfile({ monthlyIncome:incomeNum, foodBudget:d.recommendedFoodBudget||calculatedFood, expenses })
+      setShowChibi(true)
+      toast.success('Budget set! $'+(d.recommendedFoodBudget||calculatedFood)+'/mo')
     },
     onError: () => {
       setProfile({ monthlyIncome:incomeNum, foodBudget:calculatedFood, expenses })
+      setShowChibi(true)
       toast.success('Budget set! $'+calculatedFood+'/mo')
     },
   })
 
-  const updateExpense = (id:string, amount:number) => {
-    setExpenses(prev => prev.map(e => e.id===id ? {...e,amount} : e))
-  }
-  const removeExpense = (id:string) => setExpenses(prev => prev.filter(e => e.id!==id))
-  const addQuick = (label:string, category:string, def:number) => {
-    const id = Date.now().toString()
-    setExpenses(prev => [...prev, { id, label, amount:def, category }])
-  }
+  const updateExpense = (id:string, amount:number) => setExpenses(p => p.map(e => e.id===id?{...e,amount}:e))
+  const removeExpense = (id:string) => setExpenses(p => p.filter(e => e.id!==id))
+  const addQuick = (label:string, category:string, def:number) =>
+    setExpenses(p => [...p, { id:Date.now().toString(), label, amount:def, category }])
   const addCustomExpense = () => {
     if (!customLabel.trim()) return
     addQuick(customLabel.trim(), 'Other', 0)
-    setCustomLabel('')
-    setShowCustom(false)
+    setCustomLabel(''); setShowCustom(false)
   }
-
   const toggle = (list:'allergies'|'dyeFilters', key:string) => {
     const cur = profile[list]
     setProfile({ [list]: cur.includes(key) ? cur.filter((a:string)=>a!==key) : [...cur,key] })
@@ -139,11 +213,10 @@ export function BudgetTab() {
     const cur = profile.preferredStores
     setProfile({ preferredStores: cur.includes(slug) ? cur.filter((s:string)=>s!==slug) : [...cur,slug] })
   }
-
   const addPop = (x:number, y:number, text:string) => {
     const id = ++pid.current
-    setPops(p => [...p, {id,x,y,text}])
-    setTimeout(() => setPops(p => p.filter(t => t.id!==id)), 950)
+    setPops(p => [...p,{id,x,y,text}])
+    setTimeout(() => setPops(p => p.filter(t=>t.id!==id)), 950)
   }
 
   const BUBBLES = [
@@ -161,8 +234,7 @@ export function BudgetTab() {
   const g: React.CSSProperties = {
     background:'rgba(255,255,255,0.055)',
     backdropFilter:'blur(22px)', WebkitBackdropFilter:'blur(22px)',
-    border:'1px solid rgba(255,255,255,0.12)',
-    borderRadius:18, padding:18,
+    border:'1px solid rgba(255,255,255,0.12)', borderRadius:18, padding:18,
   }
   const lbl: React.CSSProperties = {
     fontSize:10, fontWeight:800, color:'rgba(255,255,255,0.42)',
@@ -173,14 +245,14 @@ export function BudgetTab() {
     borderRadius:10, padding:'7px 10px 7px 22px', color:'white',
     fontSize:13, fontWeight:700, outline:'none', fontFamily:'Nunito,sans-serif', width:'100%',
   }
-
   const catGroups = expenses.reduce((acc,e) => {
-    acc[e.category] = (acc[e.category]||0) + (e.amount||0)
-    return acc
+    acc[e.category] = (acc[e.category]||0)+(e.amount||0); return acc
   }, {} as Record<string,number>)
 
   return (
     <div style={{ position:'relative' }}>
+      {showChibi && <ChibiModal onClose={() => setShowChibi(false)} />}
+
       {BUBBLES.map((b,i) => (
         <Bubble key={i} size={b.size} style={{...b.style,zIndex:3}} onPop={(x,y)=>addPop(x,y,POP_W[i])} />
       ))}
@@ -194,27 +266,23 @@ export function BudgetTab() {
       ))}
 
       <div style={{ position:'relative', zIndex:10, padding:'0 28px 36px' }}>
-
-        {/* Top bar */}
         <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'20px 0 26px' }}>
           <div style={{ fontSize:17, fontWeight:700, color:'rgba(255,255,255,0.5)' }}>Budget Dashboard</div>
           <button onClick={()=>calculate()} disabled={isPending||!income} style={{
-            padding:'9px 24px', borderRadius:22,
+            padding:'9px 28px', borderRadius:22,
             background:isPending||!income?'rgba(107,203,119,0.2)':'var(--p)',
             border:'none', color:'white', fontSize:13, fontWeight:800,
             cursor:isPending||!income?'not-allowed':'pointer',
             opacity:isPending||!income?0.5:1, fontFamily:'Nunito,sans-serif',
             boxShadow:budget?'0 0 20px rgba(107,203,119,0.35)':'none',
-          }}>{isPending?'Calculating...':'Calculate Budget'}</button>
+            transition:'all 0.2s',
+          }}>{isPending?'Cooking...\u{1F35D}':'Calculate Budget'}</button>
         </div>
 
-        {/* Main layout: expense calc left, orb+breakdown right */}
         <div style={{ display:'grid', gridTemplateColumns:'420px 1fr', gap:20, marginBottom:22 }}>
 
-          {/* LEFT: Expense Calculator */}
+          {/* LEFT */}
           <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
-
-            {/* Income input */}
             <div style={g}>
               <div style={lbl}>Monthly Income</div>
               <div style={{ display:'flex', gap:10, alignItems:'center' }}>
@@ -239,15 +307,11 @@ export function BudgetTab() {
               )}
             </div>
 
-            {/* Expense rows */}
             <div style={g}>
               <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:12 }}>
                 <div style={lbl}>Monthly Expenses</div>
-                <div style={{ fontSize:14, fontWeight:900, color:'#ff6b6b' }}>
-                  -${totalExpenses.toLocaleString()}
-                </div>
+                <div style={{ fontSize:14, fontWeight:900, color:'#ff6b6b' }}>-${totalExpenses.toLocaleString()}</div>
               </div>
-
               <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
                 {expenses.map(exp => (
                   <div key={exp.id} style={{ display:'flex', alignItems:'center', gap:8 }}>
@@ -268,8 +332,6 @@ export function BudgetTab() {
                   </div>
                 ))}
               </div>
-
-              {/* Quick add */}
               <div style={{ marginTop:14, paddingTop:12, borderTop:'1px solid rgba(255,255,255,0.07)' }}>
                 <div style={{ ...lbl, marginBottom:8 }}>Quick Add</div>
                 <div style={{ display:'flex', flexWrap:'wrap', gap:5 }}>
@@ -278,7 +340,6 @@ export function BudgetTab() {
                       padding:'4px 11px', borderRadius:12, fontSize:10, fontWeight:800,
                       border:'1px solid rgba(255,255,255,0.14)', background:'transparent',
                       color:'rgba(255,255,255,0.45)', cursor:'pointer', fontFamily:'Nunito,sans-serif',
-                      transition:'all .15s',
                     }}>{q.label}</button>
                   ))}
                   <button onClick={()=>setShowCustom(s=>!s)} style={{
@@ -294,15 +355,15 @@ export function BudgetTab() {
                       placeholder="Expense name..."
                       style={{ ...inputStyle, flex:1, padding:'7px 12px', fontSize:12 }} />
                     <button onClick={addCustomExpense} style={{
-                      padding:'7px 16px', borderRadius:10, background:'var(--p)', border:'none',
-                      color:'white', fontSize:12, fontWeight:800, cursor:'pointer', fontFamily:'Nunito,sans-serif',
+                      padding:'7px 16px', borderRadius:10, background:'var(--p)',
+                      border:'none', color:'white', fontSize:12, fontWeight:800,
+                      cursor:'pointer', fontFamily:'Nunito,sans-serif',
                     }}>Add</button>
                   </div>
                 )}
               </div>
             </div>
 
-            {/* Spending breakdown bars */}
             <div style={g}>
               <div style={lbl}>Spending Breakdown</div>
               {incomeNum > 0 ? (
@@ -313,7 +374,7 @@ export function BudgetTab() {
                       <div key={cat} style={{ marginBottom:9 }}>
                         <div style={{ display:'flex', justifyContent:'space-between', fontSize:11, fontWeight:700, color:'rgba(255,255,255,0.5)', marginBottom:3 }}>
                           <span style={{ display:'flex', alignItems:'center', gap:5 }}>
-                            <span style={{ width:7, height:7, borderRadius:'50%', background:CAT_COLORS[cat]||'#94a3b8', display:'inline-block' }} />
+                            <span style={{ width:7,height:7,borderRadius:'50%',background:CAT_COLORS[cat]||'#94a3b8',display:'inline-block' }} />
                             {cat}
                           </span>
                           <span>${val.toLocaleString()} ({pct}%)</span>
@@ -328,7 +389,7 @@ export function BudgetTab() {
                     <div style={{ marginBottom:9 }}>
                       <div style={{ display:'flex', justifyContent:'space-between', fontSize:11, fontWeight:700, color:'rgba(78,205,196,0.7)', marginBottom:3 }}>
                         <span style={{ display:'flex', alignItems:'center', gap:5 }}>
-                          <span style={{ width:7, height:7, borderRadius:'50%', background:'#4ECDC4', display:'inline-block' }} />
+                          <span style={{ width:7,height:7,borderRadius:'50%',background:'#4ECDC4',display:'inline-block' }} />
                           Food Budget
                         </span>
                         <span>${budget.toLocaleString()} ({foodOfIncome}%)</span>
@@ -352,17 +413,12 @@ export function BudgetTab() {
             </div>
           </div>
 
-          {/* RIGHT: Orb + settings */}
+          {/* RIGHT */}
           <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
 
-            {/* ORB HERO */}
-            <div style={{ ...g, position:'relative', display:'flex', alignItems:'center', justifyContent:'center', minHeight:340 }}>
-              {/* Orbital rings */}
-              {[
-                {w:380,h:115,d:'22s',rev:false,z:''},
-                {w:320,h:95,d:'16s',rev:true,z:' rotateZ(55deg)'},
-                {w:440,h:135,d:'32s',rev:false,z:' rotateZ(110deg)'},
-              ].map((r,i)=>(
+            {/* Orb */}
+            <div style={{ ...g, position:'relative', display:'flex', alignItems:'center', justifyContent:'center', minHeight:320 }}>
+              {[{w:380,h:115,d:'22s',rev:false,z:''},{w:320,h:95,d:'16s',rev:true,z:' rotateZ(55deg)'},{w:440,h:135,d:'32s',rev:false,z:' rotateZ(110deg)'}].map((r,i)=>(
                 <div key={i} style={{
                   position:'absolute', borderRadius:'50%', pointerEvents:'none',
                   width:r.w, height:r.h,
@@ -372,24 +428,19 @@ export function BudgetTab() {
                 }} />
               ))}
               <div style={{ position:'absolute', width:220, height:220, borderRadius:'50%', background:'radial-gradient(circle,rgba(0,200,255,0.12) 0%,transparent 70%)', pointerEvents:'none', animation:'orbPulse 3s ease-in-out infinite' }} />
-
-              {/* Stats */}
               {[
-                {label:'Disposable', val:'$'+(disposable||0).toLocaleString(), pos:{left:'2%',top:'18%'}, color:'#6BCB77'},
-                {label:'Expenses',   val:'$'+totalExpenses.toLocaleString(),   pos:{right:'2%',top:'18%'}, color:'#ff6b6b'},
-                {label:'Per Day',    val:'$'+perDay,                            pos:{left:'2%',bottom:'15%'}, color:'rgba(255,255,255,0.7)'},
-                {label:'Per Week',   val:'$'+perWeek,                           pos:{right:'2%',bottom:'15%'}, color:'rgba(255,255,255,0.7)'},
+                {label:'Disposable',val:'$'+(disposable||0).toLocaleString(),pos:{left:'2%',top:'15%'},color:'#6BCB77'},
+                {label:'Expenses',val:'$'+totalExpenses.toLocaleString(),pos:{right:'2%',top:'15%'},color:'#ff6b6b'},
+                {label:'Per Day',val:'$'+perDay,pos:{left:'2%',bottom:'12%'},color:'rgba(255,255,255,0.7)'},
+                {label:'Per Week',val:'$'+perWeek,pos:{right:'2%',bottom:'12%'},color:'rgba(255,255,255,0.7)'},
               ].map((s,i)=>(
                 <div key={i} style={{ position:'absolute', textAlign:'center', ...s.pos }}>
                   <div style={{ fontSize:11, color:'rgba(255,255,255,0.38)', fontWeight:700, marginBottom:2 }}>{s.label}</div>
                   <div style={{ fontSize:24, fontWeight:900, color:s.color, lineHeight:1 }}>{s.val}</div>
                 </div>
               ))}
-
-              {/* Orb */}
               <div onClick={e=>addPop(e.clientX,e.clientY,'$'+(budget||490)+'!')} style={{
-                position:'relative', zIndex:20,
-                width:180, height:180, borderRadius:'50%',
+                position:'relative', zIndex:20, width:180, height:180, borderRadius:'50%',
                 background:'radial-gradient(circle at 28% 25%, #c2f5ff 0%, #44ccf2 18%, #1a80d8 46%, #0c3882 70%, #040e2a 100%)',
                 boxShadow:'0 0 80px rgba(0,200,255,0.6), 0 0 160px rgba(0,150,255,0.28), inset 0 0 60px rgba(255,255,255,0.15)',
                 display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center',
@@ -398,19 +449,16 @@ export function BudgetTab() {
                 <div style={{ fontSize:9, color:'rgba(255,255,255,0.65)', fontWeight:700, letterSpacing:1.5, textTransform:'uppercase', marginBottom:4 }}>Food Budget</div>
                 <div style={{ fontSize:42, fontWeight:900, color:'white', lineHeight:1, textShadow:'0 0 24px rgba(255,255,255,0.4)' }}>${budget||490}</div>
                 <div style={{ fontSize:11, color:'rgba(255,255,255,0.55)', fontWeight:700, marginTop:4 }}>
-                  {incomeNum > 0 ? foodOfIncome+'% of income' : 'Monthly'}
+                  {incomeNum>0?foodOfIncome+'% of income':'Monthly'}
                 </div>
               </div>
             </div>
 
-            {/* Mode toggle */}
+            {/* Who budgeting */}
             <div style={g}>
               <div style={lbl}>Who are you budgeting for?</div>
               <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
-                {[
-                  {id:'individual',label:'Just Me',sub:'Individual plan'},
-                  {id:'family',label:'Family',sub:'2+ people'},
-                ].map(m=>(
+                {[{id:'individual',label:'Just Me',sub:'Individual plan'},{id:'family',label:'Family',sub:'2+ people'}].map(m=>(
                   <button key={m.id} onClick={()=>{
                     setMode(m.id as any)
                     if(m.id==='individual') setProfile({householdSize:1})
@@ -441,7 +489,7 @@ export function BudgetTab() {
               )}
             </div>
 
-            {/* Fitness Goal */}
+            {/* Fitness goal */}
             <div style={g}>
               <div style={lbl}>Fitness Goal</div>
               <div style={{ display:'flex', flexWrap:'wrap', gap:6, marginBottom:10 }}>
@@ -456,34 +504,46 @@ export function BudgetTab() {
                 ))}
               </div>
               <div style={{ padding:'9px 12px', background:'rgba(107,203,119,0.07)', borderRadius:10, fontSize:11, fontWeight:700, color:'rgba(107,203,119,0.8)', lineHeight:1.5 }}>
-                {GOALS.find(g=>g.id===(profile.fitnessGoal||'balanced'))?.desc}
+                {GOALS.find(gl=>gl.id===(profile.fitnessGoal||'balanced'))?.desc}
               </div>
             </div>
 
-            {/* Allergy + Store side by side */}
+            {/* Allergy + Store */}
             <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:14 }}>
               <div style={g}>
                 <div style={lbl}>Allergy & Dye Filters</div>
-                <div style={{ display:'flex', flexWrap:'wrap', gap:6, marginBottom:10 }}>
-                  {ALLERGENS.map(a=>{
-                    const key=a.toLowerCase(); const on=profile.allergies.includes(key)
-                    return <div key={a} onClick={()=>toggle('allergies',key)} title={a} style={{
-                      width:24,height:24,borderRadius:'50%',cursor:'pointer',
-                      background:on?'radial-gradient(circle at 32% 28%,rgba(255,255,255,0.88),rgba(126,207,255,0.55) 48%,rgba(78,205,196,0.28))':'radial-gradient(circle at 32% 28%,rgba(255,255,255,0.52),rgba(167,139,250,0.2) 48%,rgba(78,205,196,0.1))',
-                      border:'1px solid rgba(255,255,255,'+(on?'0.52':'0.22')+')',
-                      boxShadow:on?'0 0 8px rgba(126,207,255,0.4)':'none',transition:'all .18s',
-                    }} />
+                <div style={{ fontSize:10, fontWeight:800, color:'rgba(255,255,255,0.3)', textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:7 }}>Allergens</div>
+                <div style={{ display:'flex', flexWrap:'wrap', gap:5, marginBottom:11 }}>
+                  {ALLERGENS.map(a => {
+                    const key = a.toLowerCase()
+                    const on  = profile.allergies.includes(key)
+                    return (
+                      <button key={a} onClick={()=>toggle('allergies',key)} style={{
+                        padding:'4px 10px', borderRadius:14, fontSize:11, fontWeight:800,
+                        border:'1px solid '+(on?'rgba(255,107,107,0.6)':'rgba(255,255,255,0.14)'),
+                        background:on?'rgba(255,107,107,0.18)':'rgba(255,255,255,0.04)',
+                        color:on?'#ff8fab':'rgba(255,255,255,0.5)',
+                        cursor:'pointer', fontFamily:'Nunito,sans-serif',
+                        boxShadow:on?'0 0 8px rgba(255,107,107,0.3)':'none',
+                        transition:'all 0.18s',
+                      }}>{a}</button>
+                    )
                   })}
                 </div>
+                <div style={{ fontSize:10, fontWeight:800, color:'rgba(255,255,255,0.3)', textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:7 }}>Synthetic Dyes</div>
                 <div style={{ display:'flex', flexWrap:'wrap', gap:5 }}>
-                  {DYES.map(d=>{
-                    const key=d.toLowerCase().replace(/\s/g,'_').replace(/#/g,''); const on=profile.dyeFilters.includes(key)
-                    return <button key={d} onClick={()=>toggle('dyeFilters',key)} style={{
-                      padding:'3px 8px',borderRadius:12,fontSize:10,fontWeight:800,
-                      border:'1px solid '+(on?'rgba(255,230,109,0.5)':'rgba(255,255,255,0.12)'),
-                      background:on?'rgba(255,230,109,0.12)':'transparent',
-                      color:on?'#FFE66D':'rgba(255,255,255,0.35)',cursor:'pointer',fontFamily:'Nunito,sans-serif',
-                    }}>{d}</button>
+                  {DYES.map(d => {
+                    const key = d.toLowerCase().replace(/\s/g,'_').replace(/#/g,'')
+                    const on  = profile.dyeFilters.includes(key)
+                    return (
+                      <button key={d} onClick={()=>toggle('dyeFilters',key)} style={{
+                        padding:'3px 9px', borderRadius:12, fontSize:10, fontWeight:800,
+                        border:'1px solid '+(on?'rgba(255,230,109,0.55)':'rgba(255,255,255,0.12)'),
+                        background:on?'rgba(255,230,109,0.14)':'transparent',
+                        color:on?'#FFE66D':'rgba(255,255,255,0.38)',
+                        cursor:'pointer', fontFamily:'Nunito,sans-serif',
+                      }}>{d}</button>
+                    )
                   })}
                 </div>
               </div>
@@ -491,14 +551,17 @@ export function BudgetTab() {
               <div style={g}>
                 <div style={lbl}>Store Deal Tracking</div>
                 <div style={{ display:'flex', flexWrap:'wrap', gap:5 }}>
-                  {STORES.map(s=>{
-                    const on=profile.preferredStores.includes(s.slug)
-                    return <button key={s.slug} onClick={()=>toggleStore(s.slug)} style={{
-                      padding:'4px 10px',borderRadius:12,fontSize:10,fontWeight:800,
-                      border:'1px solid '+(on?'var(--s)':'rgba(255,255,255,0.12)'),
-                      background:on?'rgba(78,205,196,0.15)':'transparent',
-                      color:on?'var(--s)':'rgba(255,255,255,0.35)',cursor:'pointer',fontFamily:'Nunito,sans-serif',
-                    }}>{s.label}</button>
+                  {STORES.map(s => {
+                    const on = profile.preferredStores.includes(s.slug)
+                    return (
+                      <button key={s.slug} onClick={()=>toggleStore(s.slug)} style={{
+                        padding:'4px 10px', borderRadius:12, fontSize:10, fontWeight:800,
+                        border:'1px solid '+(on?'var(--s)':'rgba(255,255,255,0.12)'),
+                        background:on?'rgba(78,205,196,0.15)':'transparent',
+                        color:on?'var(--s)':'rgba(255,255,255,0.35)',
+                        cursor:'pointer', fontFamily:'Nunito,sans-serif',
+                      }}>{s.label}</button>
+                    )
                   })}
                 </div>
                 {dealSavings > 0 && (
