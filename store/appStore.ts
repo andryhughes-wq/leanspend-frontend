@@ -1,5 +1,12 @@
-import { create } from 'zustand'
+﻿import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+
+export interface Expense {
+  id: string
+  label: string
+  amount: number
+  category: string
+}
 
 interface Profile {
   id?: string
@@ -10,6 +17,7 @@ interface Profile {
   allergies: string[]
   dyeFilters: string[]
   preferredStores: string[]
+  expenses: Expense[]
 }
 
 interface AppState {
@@ -20,9 +28,14 @@ interface AppState {
 }
 
 const DEFAULT: Profile = {
-  monthlyIncome: 0, foodBudget: 0, householdSize: 1,
-  fitnessGoal: 'balanced', allergies: [], dyeFilters: [],
+  monthlyIncome: 0,
+  foodBudget: 0,
+  householdSize: 1,
+  fitnessGoal: 'balanced',
+  allergies: [],
+  dyeFilters: [],
   preferredStores: ['kroger', 'walmart', 'heb'],
+  expenses: [],
 }
 
 export const useAppStore = create<AppState>()(
