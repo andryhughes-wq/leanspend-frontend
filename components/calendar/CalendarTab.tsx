@@ -76,9 +76,9 @@ export function CalendarTab() {
         <div style={{ display:'flex', gap:6, alignItems:'center' }}>
           <button onClick={handleRefresh} disabled={refreshing||loadingAds}
             style={{ padding:'5px 12px', border:'2px solid var(--p)', borderRadius:10, cursor:'pointer', fontSize:11, fontWeight:800, background:'var(--p-light)', color:'var(--p-dark)', fontFamily:'Nunito,sans-serif' }}>
-            {refreshing||loadingAds ? '⏳' : '🔄 Refresh Ads'}
+            {refreshing||loadingAds ? '' : ' Refresh Ads'}
           </button>
-          {[['‹',()=>setCurrent(subMonths(current,1))],['›',()=>setCurrent(addMonths(current,1))]].map(([lbl,fn],i)=>(
+          {[['',()=>setCurrent(subMonths(current,1))],['',()=>setCurrent(addMonths(current,1))]].map(([lbl,fn],i)=>(
             <button key={i} onClick={fn as any}
               style={{ padding:'5px 12px', border:'2px solid var(--border)', borderRadius:10, cursor:'pointer', fontSize:15, fontWeight:800, background:'var(--card)', color:'var(--text)', fontFamily:'Nunito,sans-serif' }}>
               {lbl as string}
@@ -91,10 +91,10 @@ export function CalendarTab() {
       {liveAds && (
         <div style={{ background:'var(--s-light)', border:'2px solid var(--s)', borderRadius:12, padding:'8px 14px', display:'flex', alignItems:'center', justifyContent:'space-between', gap:8 }}>
           <div style={{ fontSize:11, fontWeight:700, color:'var(--s-dark)' }}>
-            📡 <strong>{liveAds.deals?.length || 0} live deals</strong> scraped from {liveAds.storeCount||0} store websites · Updated just now
+             <strong>{liveAds.deals?.length || 0} live deals</strong> scraped from {liveAds.storeCount||0} store websites  Updated just now
           </div>
           {liveAds.errors?.length > 0 && (
-            <div style={{ fontSize:10, color:'var(--muted)', fontWeight:700 }}>⚠️ {liveAds.errors.length} stores unavailable</div>
+            <div style={{ fontSize:10, color:'var(--muted)', fontWeight:700 }}> {liveAds.errors.length} stores unavailable</div>
           )}
         </div>
       )}
@@ -158,13 +158,13 @@ export function CalendarTab() {
 
       {/* Deals list */}
       <div style={{ fontSize:13, fontWeight:900, color:'var(--text)' }}>
-        🏷️ {activeStore ? `${activeStore.charAt(0).toUpperCase()+activeStore.slice(1)} Deals` : 'All Active Deals'}
+         {activeStore ? `${activeStore.charAt(0).toUpperCase()+activeStore.slice(1)} Deals` : 'All Active Deals'}
         <span style={{ fontSize:11, color:'var(--muted)', fontWeight:700, marginLeft:6 }}>({filteredDeals.length})</span>
       </div>
 
       {filteredDeals.length === 0 ? (
         <div className="card" style={{ padding:20, textAlign:'center', color:'var(--muted)', fontWeight:700 }}>
-          No deals loaded yet. Click 🔄 Refresh Ads to pull live data from store websites!
+          No deals loaded yet. Click  Refresh Ads to pull live data from store websites!
         </div>
       ) : (
         filteredDeals.slice(0,15).map((deal:any, i:number)=>{
@@ -183,7 +183,7 @@ export function CalendarTab() {
                 </div>
                 <div style={{ fontSize:10, color:'var(--muted)', fontWeight:700, marginTop:1 }}>
                   {deal.deal_description || deal.dealType || 'Weekly Special'}
-                  {deal.valid_from && !deal.live && ` · ${format(new Date(deal.valid_from),'MMM d')}–${format(new Date(deal.valid_to),'MMM d')}`}
+                  {deal.valid_from && !deal.live && `  ${format(new Date(deal.valid_from),'MMM d')}${format(new Date(deal.valid_to),'MMM d')}`}
                 </div>
               </div>
               <div style={{ textAlign:'right', flexShrink:0 }}>

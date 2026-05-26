@@ -4,11 +4,11 @@ import { type TabId } from '@/app/page'
 import { ThemePanel } from './ThemePanel'
 
 const TABS: { id: TabId; label: string; icon: string }[] = [
-  { id: 'budget',    label: 'Budget',    icon: '💰' },
-  { id: 'calendar',  label: 'Calendar',  icon: '📅' },
-  { id: 'meals',     label: 'Meals',     icon: '🍽️' },
-  { id: 'nutrition', label: 'Nutrition', icon: '🥗' },
-  { id: 'tips',      label: 'Tips',      icon: '💡' },
+  { id: 'budget',    label: 'Budget',    icon: '' },
+  { id: 'calendar',  label: 'Calendar',  icon: '' },
+  { id: 'meals',     label: 'Meals',     icon: '' },
+  { id: 'nutrition', label: 'Nutrition', icon: '' },
+  { id: 'tips',      label: 'Tips',      icon: '' },
 ]
 
 export function AppShell({ activeTab, onTabChange, children }: {
@@ -19,7 +19,7 @@ export function AppShell({ activeTab, onTabChange, children }: {
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'var(--bg)' }}>
 
-      {/* Header — full width */}
+      {/* Header  full width */}
       <header style={{
         background: 'var(--p)',
         padding: '0 32px',
@@ -34,13 +34,13 @@ export function AppShell({ activeTab, onTabChange, children }: {
         flexShrink: 0,
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <span style={{ fontSize: 28 }}>💪</span>
+          <span style={{ fontSize: 28 }}></span>
           <div className="font-display" style={{ fontSize: 24, color: '#fff', letterSpacing: 1 }}>
             Lean<span style={{ color: 'var(--acc)' }}>Spend</span>
           </div>
         </div>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          {['📱', '🔔'].map((ic, i) => (
+          {['', ''].map((ic, i) => (
             <button key={i} style={{
               width: 36, height: 36, borderRadius: '50%',
               background: 'rgba(255,255,255,0.2)', border: 'none',
@@ -55,7 +55,7 @@ export function AppShell({ activeTab, onTabChange, children }: {
               background: 'rgba(255,255,255,0.25)',
               border: '1.5px solid rgba(255,255,255,0.5)',
               color: '#fff', fontSize: 16, cursor: 'pointer',
-            }}>🎨</button>
+            }}></button>
         </div>
       </header>
 
@@ -66,7 +66,7 @@ export function AppShell({ activeTab, onTabChange, children }: {
         </div>
       )}
 
-      {/* Nav — full width */}
+      {/* Nav  full width */}
       <nav style={{
         display: 'flex',
         background: 'var(--card)',
@@ -105,7 +105,7 @@ export function AppShell({ activeTab, onTabChange, children }: {
         ))}
       </nav>
 
-      {/* Content — full width with max 1400px */}
+      {/* Content  full width with max 1400px */}
       <main style={{
         flex: 1,
         padding: '24px 32px',
@@ -118,7 +118,7 @@ export function AppShell({ activeTab, onTabChange, children }: {
       </main>
 
       <footer style={{ textAlign: 'center', padding: '14px 0', fontSize: 12, color: 'var(--faint)', fontWeight: 700 }}>
-        LeanSpend · Eat lean. Spend less. Live fit. 💪
+        LeanSpend  Eat lean. Spend less. Live fit. 
       </footer>
     </div>
   )

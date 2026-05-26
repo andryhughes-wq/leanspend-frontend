@@ -38,8 +38,8 @@ export function ThemePanel({ onClose }: { onClose: () => void }) {
       animation: 'slideUp 0.3s cubic-bezier(0.34,1.56,0.64,1) both',
     }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-        <div style={{ fontSize: 15, fontWeight: 900, color: 'var(--text)' }}>🎨 Customize your theme</div>
-        <button onClick={onClose} style={{ background: 'none', border: 'none', fontSize: 20, cursor: 'pointer', color: 'var(--muted)' }}>✕</button>
+        <div style={{ fontSize: 15, fontWeight: 900, color: 'var(--text)' }}> Customize your theme</div>
+        <button onClick={onClose} style={{ background: 'none', border: 'none', fontSize: 20, cursor: 'pointer', color: 'var(--muted)' }}></button>
       </div>
 
       <div style={{
@@ -55,7 +55,7 @@ export function ThemePanel({ onClose }: { onClose: () => void }) {
         gap: 8,
         marginBottom: 14,
       }}>
-        🔄 Theme syncs across web app, Telegram bot, and Android app instantly.
+         Theme syncs across web app, Telegram bot, and Android app instantly.
       </div>
 
       <div style={{ fontSize: 10, fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.4px', marginBottom: 10 }}>

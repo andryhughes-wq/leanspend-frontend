@@ -4,7 +4,7 @@ import { Toaster } from 'react-hot-toast'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'LeanSpend 💪 — Eat Lean. Spend Less. Live Fit.',
+  title: 'LeanSpend   Eat Lean. Spend Less. Live Fit.',
   description: 'Fitness-focused grocery budgeting with AI meal planning, live store deals, and nutrition tracking.',
 }
 

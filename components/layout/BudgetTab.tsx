@@ -9,20 +9,20 @@ import { ChatWidget } from '@/components/chat/ChatWidget'
 const ALLERGENS = ['Gluten','Dairy','Eggs','Peanuts','Soy','Shellfish','Fish','Wheat']
 const DYES      = ['Red #40','Yellow #5','Yellow #6','Blue #1','Red #3']
 const STORES    = [
-  { slug:'kroger',     label:'🏪 Kroger' },
-  { slug:'walmart',    label:'🟡 Walmart' },
-  { slug:'heb',        label:'🌮 HEB' },
-  { slug:'target',     label:'🎯 Target' },
-  { slug:'aldi',       label:'🛒 Aldi' },
-  { slug:'wholefoods', label:'🌿 Whole Foods' },
-  { slug:'sprouts',    label:'🌱 Sprouts' },
+  { slug:'kroger',     label:' Kroger' },
+  { slug:'walmart',    label:' Walmart' },
+  { slug:'heb',        label:' HEB' },
+  { slug:'target',     label:' Target' },
+  { slug:'aldi',       label:' Aldi' },
+  { slug:'wholefoods', label:' Whole Foods' },
+  { slug:'sprouts',    label:' Sprouts' },
 ]
 const GOALS = [
-  { id:'balanced',    label:'⚖️ Balanced',   desc:'Balanced macros ~2,000 cal/day — 30% protein, 45% carbs, 25% fat' },
-  { id:'muscle-gain', label:'💪 Muscle Gain', desc:'High protein 140g+/day — chicken, eggs, Greek yogurt, cottage cheese' },
-  { id:'weight-loss', label:'🔥 Weight Loss', desc:'Low calorie 1,400/day — high fiber, lean protein, lots of vegetables' },
-  { id:'endurance',   label:'🏃 Endurance',   desc:'High carb 55–60% — oats, sweet potato, brown rice, bananas' },
-  { id:'plant-based', label:'🌱 Plant-Based', desc:'Plant proteins only — beans, lentils, tofu, tempeh, no meat or dairy' },
+  { id:'balanced',    label:' Balanced',   desc:'Balanced macros ~2,000 cal/day  30% protein, 45% carbs, 25% fat' },
+  { id:'muscle-gain', label:' Muscle Gain', desc:'High protein 140g+/day  chicken, eggs, Greek yogurt, cottage cheese' },
+  { id:'weight-loss', label:' Weight Loss', desc:'Low calorie 1,400/day  high fiber, lean protein, lots of vegetables' },
+  { id:'endurance',   label:' Endurance',   desc:'High carb 5560%  oats, sweet potato, brown rice, bananas' },
+  { id:'plant-based', label:' Plant-Based', desc:'Plant proteins only  beans, lentils, tofu, tempeh, no meat or dairy' },
 ]
 
 const card: React.CSSProperties = {
@@ -51,7 +51,7 @@ export function BudgetTab() {
     }),
     onSuccess: d => {
       setProfile({ monthlyIncome: Number(income), foodBudget: d.recommendedFoodBudget })
-      toast.success(`Budget set! $${d.recommendedFoodBudget}/mo 💪`)
+      toast.success(`Budget set! $${d.recommendedFoodBudget}/mo `)
     },
     onError: (e:Error) => toast.error(e.message),
   })
@@ -78,11 +78,11 @@ export function BudgetTab() {
       <div>
         {/* Individual / Family */}
         <div style={card}>
-          <div style={secTitle}>👤 Who are you budgeting for?</div>
+          <div style={secTitle}> Who are you budgeting for?</div>
           <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, marginBottom:14 }}>
             {[
-              { id:'individual', label:'👤 Just Me',   sub:'Individual plan' },
-              { id:'family',     label:'👨‍👩‍👧 Family',    sub:'2–10 people' },
+              { id:'individual', label:' Just Me',   sub:'Individual plan' },
+              { id:'family',     label:' Family',    sub:'210 people' },
             ].map(m => (
               <button key={m.id} onClick={() => {
                 setMode(m.id as any)
@@ -131,7 +131,7 @@ export function BudgetTab() {
             </div>
             <button onClick={()=>income&&calculate()} disabled={isPending||!income}
               style={{ background:'var(--p)', color:'#fff', border:'none', borderRadius:13, padding:'12px 20px', fontSize:13, fontWeight:800, cursor:'pointer', whiteSpace:'nowrap', fontFamily:'Nunito,sans-serif', opacity:isPending||!income?0.5:1 }}>
-              {isPending ? '⏳...' : 'Plan It! 🚀'}
+              {isPending ? '...' : 'Plan It! '}
             </button>
           </div>
         </div>
@@ -142,7 +142,7 @@ export function BudgetTab() {
           <div style={{ fontSize:12, fontWeight:700, opacity:0.8 }}>
             Monthly food budget {profile.householdSize > 1 ? `(family of ${profile.householdSize})` : '(individual)'}
           </div>
-          <div style={{ fontSize:52, fontWeight:900, lineHeight:1, margin:'4px 0' }}>${budget||'—'}</div>
+          <div style={{ fontSize:52, fontWeight:900, lineHeight:1, margin:'4px 0' }}>${budget||''}</div>
           <div style={{ fontSize:12, opacity:0.75, fontWeight:700 }}>
             {data ? `${data.foodBudgetPercent}% of $${Number(income).toLocaleString()} income` : 'Enter your income above'}
           </div>
@@ -156,10 +156,10 @@ export function BudgetTab() {
         {/* Savings banner */}
         {budget > 0 && (
           <div style={{ background:'var(--s)', borderRadius:14, padding:'13px 16px', color:'#fff', display:'flex', alignItems:'center', gap:10, marginBottom:16 }}>
-            <span style={{ fontSize:26 }}>🏷️</span>
+            <span style={{ fontSize:26 }}></span>
             <div style={{ fontSize:13, fontWeight:700 }}>
               Potential deal savings: <strong>${savings}</strong> with tracked store deals!
-              {profile.householdSize > 1 && <span> · ${(savings/profile.householdSize).toFixed(0)}/person</span>}
+              {profile.householdSize > 1 && <span>  ${(savings/profile.householdSize).toFixed(0)}/person</span>}
             </div>
           </div>
         )}
@@ -167,10 +167,10 @@ export function BudgetTab() {
         {/* Stats grid */}
         <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:12, marginBottom:16 }}>
           {[
-            { ico:'🛒', label:'Without deals', val:`$${budget||'—'}`,   sub:'Full price' },
-            { ico:'💚', label:'With deals',    val:`$${withD||'—'}`,    sub:'Active stores', hi:true },
-            { ico:'🍎', label:'Per day',       val:budget?`$${(withD/30).toFixed(2)}`:'—', sub:'3 meals' },
-            { ico:'📅', label:'Per week',      val:budget?`$${Math.round(budget/4)}`:'—', sub:'Weekly budget' },
+            { ico:'', label:'Without deals', val:`$${budget||''}`,   sub:'Full price' },
+            { ico:'', label:'With deals',    val:`$${withD||''}`,    sub:'Active stores', hi:true },
+            { ico:'', label:'Per day',       val:budget?`$${(withD/30).toFixed(2)}`:'', sub:'3 meals' },
+            { ico:'', label:'Per week',      val:budget?`$${Math.round(budget/4)}`:'', sub:'Weekly budget' },
           ].map(c => (
             <div key={c.label} style={{ ...card, marginBottom:0, borderColor:c.hi?'var(--s)':'var(--border)' }}>
               <div style={{ fontSize:28, marginBottom:8 }}>{c.ico}</div>
@@ -205,7 +205,7 @@ export function BudgetTab() {
       <div>
         {/* Fitness Goal */}
         <div style={card}>
-          <div style={secTitle}>🎯 Fitness Goal</div>
+          <div style={secTitle}> Fitness Goal</div>
           <div style={{ display:'flex', flexWrap:'wrap', gap:7, marginBottom:10 }}>
             {GOALS.map(g => (
               <button key={g.id} onClick={() => setProfile({ fitnessGoal:g.id })}
@@ -219,13 +219,13 @@ export function BudgetTab() {
             ))}
           </div>
           <div style={{ padding:'10px 13px', background:'var(--p-light)', borderRadius:11, fontSize:12, fontWeight:700, color:'var(--p-dark)' }}>
-            💡 {goalInfo?.desc || 'Select a fitness goal above'}
+             {goalInfo?.desc || 'Select a fitness goal above'}
           </div>
         </div>
 
         {/* Allergies */}
         <div style={card}>
-          <div style={secTitle}>🚨 Allergy & Dye Filters</div>
+          <div style={secTitle}> Allergy & Dye Filters</div>
           <div style={{ fontSize:11, fontWeight:800, color:'var(--muted)', textTransform:'uppercase', letterSpacing:'0.4px', marginBottom:8 }}>Allergens</div>
           <div style={{ display:'flex', flexWrap:'wrap', gap:6, marginBottom:12 }}>
             {ALLERGENS.map(a => {
@@ -252,7 +252,7 @@ export function BudgetTab() {
 
         {/* Stores */}
         <div style={card}>
-          <div style={secTitle}>🏪 Store Deal Tracking</div>
+          <div style={secTitle}> Store Deal Tracking</div>
           <div style={{ fontSize:12, color:'var(--muted)', fontWeight:700, marginBottom:10 }}>Live weekly ads scraped from each store's website</div>
           <div style={{ display:'flex', flexWrap:'wrap', gap:6 }}>
             {STORES.map(s => {
