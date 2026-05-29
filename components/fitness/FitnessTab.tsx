@@ -94,12 +94,12 @@ export function FitnessTab() {
     }
   }, {cal:0, protein:0, carbs:0, fat:0, fiber:0})
 
-  const addFood = (foodName) => {
+  const addFood = (foodName: string) => {
     setLog(prev => [...prev, {id: Date.now().toString(), food: foodName, quantity: 1, meal: selectedMeal}])
     setSearch('')
   }
-  const removeFood = (id) => setLog(prev => prev.filter(e => e.id !== id))
-  const updateQty = (id, qty) => setLog(prev => prev.map(e => e.id === id ? {...e, quantity: qty} : e))
+  const removeFood = (id: string) => setLog(prev => prev.filter(e => e.id !== id))
+  const updateQty = (id: string, qty: number) => setLog(prev => prev.map(e => e.id === id ? {...e, quantity: qty} : e))
   const filteredFoods = Object.keys(FOOD_DB).filter(f => f.toLowerCase().includes(search.toLowerCase())).slice(0, 8)
 
   const g = {
