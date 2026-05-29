@@ -111,7 +111,7 @@ export function FitnessTab() {
     borderRadius: 18,
   }
 
-  const MacroRing = ({label, current, goal, color, unit = 'g'}) => {
+  const MacroRing = ({label, current, goal, color, unit = 'g'}: {label:string,current:number,goal:number,color:string,unit?:string}) => {
     const pct = goal > 0 ? Math.min(100, Math.round((current / goal) * 100)) : 0
     const over = current > goal
     return (
