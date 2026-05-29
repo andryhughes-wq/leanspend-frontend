@@ -64,7 +64,7 @@ export function FitnessTab() {
   }
 
   const fitnessGoal = profile.fitnessGoal || 'balanced'
-  const macroPreset = MACRO_PRESETS[fitnessGoal] || MACRO_PRESETS['balanced']
+  const macroPreset = MACRO_PRESETS[fitnessGoal as keyof typeof MACRO_PRESETS] || MACRO_PRESETS['balanced']
 
   const calcTDEE = () => {
     const w = Number(weight), h = Number(height), a = Number(age)
