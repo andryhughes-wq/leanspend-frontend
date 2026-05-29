@@ -57,7 +57,7 @@ export function FitnessTab() {
   const [pops, setPops] = useState([])
   const popId = useRef(0)
 
-  const addPop = (x, y) => {
+  const addPop = (x: number, y: number) => {
     const id = ++popId.current
     setPops(p => [...p, {id, x, y}])
     setTimeout(() => setPops(p => p.filter(t => t.id !== id)), 900)
