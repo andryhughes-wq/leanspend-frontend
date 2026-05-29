@@ -94,7 +94,6 @@ function ChibiModal({ onClose }: { onClose: () => void }) {
           <ellipse cx="100" cy="125" rx="22" ry="18" fill="#ffe0bd" stroke="#e8c4a0" strokeWidth="1.5"/>
           {/* Chibi head */}
           <circle cx="100" cy="88" r="32" fill="#ffe0bd" stroke="#e8c4a0" strokeWidth="2"/>
- border:`2px solid ${mode===m.id?'var(--p)':'var(--border)'}`,
           <path d="M68 80 Q72 58 100 56 Q128 58 132 80 Q120 65 100 64 Q80 65 68 80 Z" fill="#3d2b1f"/>
           <path d="M68 80 Q62 75 64 65 Q66 60 72 62 Z" fill="#3d2b1f"/>
           <path d="M132 80 Q138 75 136 65 Q134 60 128 62 Z" fill="#3d2b1f"/>
