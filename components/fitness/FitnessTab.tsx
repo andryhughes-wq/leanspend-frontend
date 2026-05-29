@@ -83,7 +83,7 @@ export function FitnessTab() {
   const goalFat = Math.round((goalCalories * (macroPreset.fat / 100)) / 9)
 
   const totals = log.reduce((acc, e) => {
-    const food = FOOD_DB[e.food]
+    const food = FOOD_DB[e.food as keyof typeof FOOD_DB]
     if (!food) return acc
     return {
       cal: acc.cal + food.cal * e.quantity,
@@ -227,7 +227,7 @@ export function FitnessTab() {
             ) : (
               <div style={{display:'flex', flexDirection:'column', gap:6}}>
                 {log.map(entry => {
-                  const food = FOOD_DB[entry.food]
+                  const food = FOOD_DB[entry.food as keyof typeof FOOD_DB]
                   return (
                     <div key={entry.id} style={{display:'flex', alignItems:'center', gap:8,
                       padding:'8px 10px', borderRadius:10,
