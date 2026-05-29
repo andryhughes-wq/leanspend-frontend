@@ -1,199 +1,366 @@
-'use client'
+﻿'use client'
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { format, addMonths, subMonths, startOfMonth, getDaysInMonth, getDay } from 'date-fns'
 import { dealsApi } from '@/lib/api'
 import { useAppStore } from '@/store/appStore'
+import { RealisticBubble } from '@/components/layout/RealisticBubble'
+
+const STORE_COLORS: Record<string,{bg:string,color:string,accent:string}> = {
+  kroger:     {bg:'rgba(255,107,107,0.15)',color:'#ff6b6b',accent:'rgba(255,107,107,0.4)'},
+  walmart:    {bg:'rgba(59,130,246,0.15)', color:'#3b82f6',accent:'rgba(59,130,246,0.4)'},
+  heb:        {bg:'rgba(249,115,22,0.15)', color:'#f97316',accent:'rgba(249,115,22,0.4)'},
+  target:     {bg:'rgba(239,68,68,0.15)',  color:'#ef4444',accent:'rgba(239,68,68,0.4)'},
+  aldi:       {bg:'rgba(16,185,129,0.15)', color:'#10b981',accent:'rgba(16,185,129,0.4)'},
+  wholefoods: {bg:'rgba(107,203,119,0.15)',color:'#6BCB77',accent:'rgba(107,203,119,0.4)'},
+  sprouts:    {bg:'rgba(52,211,153,0.15)', color:'#34d399',accent:'rgba(52,211,153,0.4)'},
+  costco:     {bg:'rgba(99,102,241,0.15)', color:'#6366f1',accent:'rgba(99,102,241,0.4)'},
+  samsclub:   {bg:'rgba(168,85,247,0.15)', color:'#a855f7',accent:'rgba(168,85,247,0.4)'},
+  default:    {bg:'rgba(255,255,255,0.08)',color:'rgba(255,255,255,0.6)',accent:'rgba(255,255,255,0.2)'},
+}
+
+const FILTERS = ['All','Near Me','Best Savings','Expiring Soon','Verified','Flash Deals']
+const DAYS_OF_WEEK = ['Su','Mo','Tu','We','Th','Fr','Sa']
+
+function getDaysInMonth(year:number,month:number){return new Date(year,month+1,0).getDate()}
+function getFirstDay(year:number,month:number){return new Date(year,month,1).getDay()}
 
 export function CalendarTab() {
-  const [current, setCurrent]     = useState(new Date())
-  const [activeStore, setActiveStore] = useState<string|null>(null)
-  const [refreshing, setRefreshing]   = useState(false)
   const { profile } = useAppStore()
-  const month = current.getMonth()+1
-  const year  = current.getFullYear()
+  const today = new Date()
+  const [viewYear,  setViewYear]  = useState(today.getFullYear())
+  const [viewMonth, setViewMonth] = useState(today.getMonth())
+  const [selDay,    setSelDay]    = useState<number|null>(today.getDate())
+  const [activeFilter, setActiveFilter] = useState('All')
+  const [radius, setRadius] = useState(10)
+  const [pops, setPops] = useState<{id:number,x:number,y:number}[]>([])
+  const popId = {current:0}
 
-  const { data: calData } = useQuery({
-    queryKey: ['cal', month, year],
-    queryFn:  () => dealsApi.getCalendar(month, year),
-  })
-
-  const { data: activeData, refetch: refetchActive } = useQuery({
-    queryKey: ['deals-active', profile.preferredStores.join(',')],
-    queryFn:  () => dealsApi.getActive({ limit: 40 }),
-    staleTime: 1000 * 60 * 30,
-  })
-
-  // Live weekly ad data from store websites
-  const { data: liveAds, refetch: refetchAds, isFetching: loadingAds } = useQuery({
-    queryKey: ['weekly-ads', profile.preferredStores.join(',')],
-    queryFn:  () => dealsApi.getWeeklyAds(profile.preferredStores.slice(0,4)),
-    staleTime: 1000 * 60 * 60 * 6, // 6 hours
-  })
-
-  const handleRefresh = async () => {
-    setRefreshing(true)
-    try {
-      await dealsApi.refresh(profile.preferredStores)
-      await refetchActive()
-      await refetchAds()
-    } finally {
-      setRefreshing(false)
-    }
+  const addPop = (x:number,y:number) => {
+    const id = ++popId.current
+    setPops(p=>[...p,{id,x,y}])
+    setTimeout(()=>setPops(p=>p.filter(t=>t.id!==id)),900)
   }
 
-  const daysInMonth = getDaysInMonth(current)
-  const firstDay    = getDay(startOfMonth(current))
-  const today       = new Date()
-  const isCurMonth  = month===today.getMonth()+1 && year===today.getFullYear()
-  const dealDays    = new Set(Object.keys(calData?.calendar||{}).map(d=>parseInt(d.split('-')[2])))
-  const bestDays    = new Set([7,14,21,28])
+  const { data: dealsData, refetch, isFetching } = useQuery({
+    queryKey: ['weekly-ads', profile.preferredStores],
+    queryFn: () => dealsApi.getWeeklyAds(profile.preferredStores),
+    staleTime: 1000*60*30,
+  })
 
-  // Merge DB deals and live scraped deals
-  const allDeals = [
-    ...(activeData?.deals || []),
-    ...(liveAds?.deals || []).filter((d:any) => d.live).slice(0,20),
-  ]
+  const deals = dealsData?.deals || dealsData?.allDeals || []
+  const stores = [...new Set(deals.map((d:any)=>d.store_slug||d.store||'').filter(Boolean))] as string[]
 
-  const filteredDeals = activeStore ? allDeals.filter((d:any)=>(d.store_slug||d.store)===activeStore) : allDeals
+  const filteredDeals = deals.filter((d:any) => {
+    if (activeFilter==='Best Savings') return (d.savings_amount||0)>2
+    if (activeFilter==='Expiring Soon') return d.valid_to && new Date(d.valid_to)<new Date(Date.now()+3*86400000)
+    if (activeFilter==='Flash Deals') return d.live
+    return true
+  })
 
-  const STORE_COLORS: Record<string,{bg:string,color:string}> = {
-    kroger:  {bg:'#EAF3DE',color:'#2A6B30'},
-    walmart: {bg:'#FAEEDA',color:'#633806'},
-    heb:     {bg:'#FAECE7',color:'#993C1D'},
-    target:  {bg:'#FCEBEB',color:'#A32D2D'},
-    aldi:    {bg:'#EDE9FE',color:'#4C1D95'},
+  const daysInMonth = getDaysInMonth(viewYear,viewMonth)
+  const firstDay    = getFirstDay(viewYear,viewMonth)
+  const monthName   = new Date(viewYear,viewMonth,1).toLocaleString('default',{month:'long'})
+
+  const prevMonth = () => { if(viewMonth===0){setViewMonth(11);setViewYear(y=>y-1)}else setViewMonth(m=>m-1) }
+  const nextMonth = () => { if(viewMonth===11){setViewMonth(0);setViewYear(y=>y+1)}else setViewMonth(m=>m+1) }
+
+  const g: React.CSSProperties = {
+    background:'rgba(255,255,255,0.055)', backdropFilter:'blur(22px)',
+    WebkitBackdropFilter:'blur(22px)', border:'1px solid rgba(255,255,255,0.11)',
+    borderTop:'1px solid rgba(255,255,255,0.18)', borderRadius:18,
   }
-
-  const stores = [...new Set(allDeals.map((d:any)=>d.store_slug||d.store))].filter(Boolean)
 
   return (
-    <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
+    <div style={{position:'relative',padding:'0 28px 36px'}}>
 
-      {/* Header with refresh */}
-      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-        <div className="font-display" style={{ fontSize:22 }}>{format(current,'MMMM yyyy')}</div>
-        <div style={{ display:'flex', gap:6, alignItems:'center' }}>
-          <button onClick={handleRefresh} disabled={refreshing||loadingAds}
-            style={{ padding:'5px 12px', border:'2px solid var(--p)', borderRadius:10, cursor:'pointer', fontSize:11, fontWeight:800, background:'var(--p-light)', color:'var(--p-dark)', fontFamily:'Nunito,sans-serif' }}>
-            {refreshing||loadingAds ? '' : ' Refresh Ads'}
-          </button>
-          {[['',()=>setCurrent(subMonths(current,1))],['',()=>setCurrent(addMonths(current,1))]].map(([lbl,fn],i)=>(
-            <button key={i} onClick={fn as any}
-              style={{ padding:'5px 12px', border:'2px solid var(--border)', borderRadius:10, cursor:'pointer', fontSize:15, fontWeight:800, background:'var(--card)', color:'var(--text)', fontFamily:'Nunito,sans-serif' }}>
-              {lbl as string}
-            </button>
-          ))}
-        </div>
-      </div>
+      {/* Floating bubbles — gold tint for calendar */}
+      {[
+        {size:34,style:{position:'fixed' as const,left:'4%', top:'25%',animationDelay:'0s'},    color:'gold'  as const},
+        {size:20,style:{position:'fixed' as const,left:'90%',top:'20%',animationDelay:'1.4s'},  color:'gold'  as const},
+        {size:28,style:{position:'fixed' as const,left:'93%',top:'55%',animationDelay:'2.1s'},  color:'teal'  as const},
+        {size:16,style:{position:'fixed' as const,left:'3%', top:'68%',animationDelay:'0.8s'},  color:'coral' as const},
+      ].map((b,i)=>(
+        <RealisticBubble key={i} size={b.size} color={b.color} style={{...b.style,zIndex:3}} onPop={addPop} />
+      ))}
 
-      {/* Live ad status banner */}
-      {liveAds && (
-        <div style={{ background:'var(--s-light)', border:'2px solid var(--s)', borderRadius:12, padding:'8px 14px', display:'flex', alignItems:'center', justifyContent:'space-between', gap:8 }}>
-          <div style={{ fontSize:11, fontWeight:700, color:'var(--s-dark)' }}>
-             <strong>{liveAds.deals?.length || 0} live deals</strong> scraped from {liveAds.storeCount||0} store websites  Updated just now
+      {pops.map(p=>(
+        <div key={p.id} style={{position:'fixed',left:p.x-16,top:p.y-40,pointerEvents:'none',zIndex:9999,
+          color:'#FFE66D',fontWeight:900,fontSize:18,fontFamily:'Nunito,sans-serif',
+          textShadow:'0 0 12px rgba(255,230,109,0.9)',animation:'floatUp 0.9s ease-out forwards'}}>Pop!</div>
+      ))}
+
+      {/* Top bar */}
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'20px 0 24px'}}>
+        <div style={{fontSize:17,fontWeight:700,color:'rgba(255,255,255,0.5)'}}>Deal Calendar</div>
+        <div style={{display:'flex',gap:10,alignItems:'center'}}>
+          <div style={{display:'flex',alignItems:'center',gap:8,background:'rgba(255,255,255,0.07)',
+            border:'1px solid rgba(255,255,255,0.12)',borderRadius:22,padding:'6px 14px'}}>
+            <span style={{fontSize:11,color:'rgba(255,255,255,0.5)',fontWeight:700}}>Radius</span>
+            <input type="range" min={1} max={25} value={radius} onChange={e=>setRadius(Number(e.target.value))}
+              style={{width:80,accentColor:'var(--acc)'}}/>
+            <span style={{fontSize:12,fontWeight:800,color:'var(--acc)',minWidth:40}}>{radius} mi</span>
           </div>
-          {liveAds.errors?.length > 0 && (
-            <div style={{ fontSize:10, color:'var(--muted)', fontWeight:700 }}> {liveAds.errors.length} stores unavailable</div>
-          )}
-        </div>
-      )}
-
-      {/* Legend */}
-      <div style={{ display:'flex', gap:14, flexWrap:'wrap', fontSize:10, fontWeight:800, color:'var(--muted)' }}>
-        {[['var(--p)','Today'],['var(--acc-dark)','Deal day'],['var(--s)','Best buy']].map(([c,l])=>(
-          <span key={l as string} style={{ display:'flex', alignItems:'center', gap:4 }}>
-            <span style={{ width:9, height:9, borderRadius:'50%', background:c as string, display:'inline-block' }}/>{l}
-          </span>
-        ))}
-      </div>
-
-      {/* Calendar */}
-      <div className="card" style={{ padding:14 }}>
-        <div style={{ display:'grid', gridTemplateColumns:'repeat(7,1fr)', gap:2, marginBottom:4 }}>
-          {['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d=>(
-            <div key={d} style={{ textAlign:'center', fontSize:9, fontWeight:900, color:'var(--muted)', padding:'3px 0', textTransform:'uppercase' }}>{d}</div>
-          ))}
-        </div>
-        <div style={{ display:'grid', gridTemplateColumns:'repeat(7,1fr)', gap:2 }}>
-          {Array(firstDay).fill(null).map((_,i)=><div key={`e${i}`}/>)}
-          {Array.from({length:daysInMonth},(_,i)=>i+1).map(d=>{
-            const isToday = isCurMonth && d===today.getDate()
-            const isBest  = bestDays.has(d)
-            const isDeal  = dealDays.has(d)
-            return (
-              <div key={d} style={{
-                aspectRatio:'1', borderRadius:9,
-                background:isToday?'var(--p)':'var(--card)',
-                border:`${isBest?'2':'1.5'}px solid ${isToday?'var(--p)':isBest?'var(--s)':isDeal?'var(--acc-dark)':'var(--border)'}`,
-                display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center',
-                fontSize:11, fontWeight:800, cursor:'pointer', color:isToday?'#fff':'var(--text)',
-                transition:'transform 0.12s',
-              }}
-              onMouseEnter={e=>(e.currentTarget.style.transform='scale(1.08)')}
-              onMouseLeave={e=>(e.currentTarget.style.transform='scale(1)')}>
-                {d}
-                {(isDeal||isBest)&&!isToday&&(
-                  <div style={{ width:5, height:5, borderRadius:'50%', marginTop:2, background:isBest?'var(--s)':'var(--acc-dark)' }}/>
-                )}
-              </div>
-            )
-          })}
+          <button onClick={()=>refetch()} disabled={isFetching} style={{
+            padding:'8px 18px',borderRadius:22,
+            background:isFetching?'rgba(255,230,109,0.2)':'rgba(255,230,109,0.15)',
+            border:'1px solid rgba(255,230,109,0.35)',color:'#FFE66D',
+            fontSize:12,fontWeight:800,cursor:'pointer',fontFamily:'Nunito,sans-serif',
+          }}>{isFetching?'Loading...':'Refresh Ads'}</button>
         </div>
       </div>
 
-      {/* Store filter chips */}
-      {stores.length > 0 && (
-        <div style={{ display:'flex', gap:6, flexWrap:'wrap' }}>
-          <button onClick={()=>setActiveStore(null)}
-            className={`chip ${!activeStore?'s-active':''}`}>All stores</button>
-          {stores.map((s:string)=>(
-            <button key={s} onClick={()=>setActiveStore(activeStore===s?null:s)}
-              className={`chip ${activeStore===s?'s-active':''}`}>
-              {s.charAt(0).toUpperCase()+s.slice(1)}
-            </button>
-          ))}
-        </div>
-      )}
+      {/* Main layout */}
+      <div style={{display:'grid',gridTemplateColumns:'300px 1fr',gap:20}}>
 
-      {/* Deals list */}
-      <div style={{ fontSize:13, fontWeight:900, color:'var(--text)' }}>
-         {activeStore ? `${activeStore.charAt(0).toUpperCase()+activeStore.slice(1)} Deals` : 'All Active Deals'}
-        <span style={{ fontSize:11, color:'var(--muted)', fontWeight:700, marginLeft:6 }}>({filteredDeals.length})</span>
-      </div>
+        {/* LEFT: Compact Calendar */}
+        <div style={{...g,padding:20}}>
 
-      {filteredDeals.length === 0 ? (
-        <div className="card" style={{ padding:20, textAlign:'center', color:'var(--muted)', fontWeight:700 }}>
-          No deals loaded yet. Click  Refresh Ads to pull live data from store websites!
-        </div>
-      ) : (
-        filteredDeals.slice(0,15).map((deal:any, i:number)=>{
-          const store = deal.store_slug || deal.store || 'store'
-          const sc    = STORE_COLORS[store] || {bg:'var(--p-light)',color:'var(--p-dark)'}
-          const savings = deal.savings_amount || (deal.original_price && deal.deal_price ? (deal.original_price - deal.deal_price).toFixed(2) : null)
-          return (
-            <div key={i} className="card-hover" style={{ padding:'10px 14px', display:'flex', alignItems:'center', gap:10 }}>
-              <div style={{ fontSize:10, fontWeight:900, padding:'5px 9px', borderRadius:9, background:sc.bg, color:sc.color, minWidth:60, textAlign:'center', flexShrink:0 }}>
-                {store.toUpperCase()}
-                {deal.live && <div style={{ fontSize:8, opacity:0.7 }}>LIVE</div>}
+          {/* Month nav */}
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}}>
+            <button onClick={prevMonth} style={{
+              width:28,height:28,borderRadius:'50%',border:'1px solid rgba(255,255,255,0.15)',
+              background:'transparent',color:'rgba(255,255,255,0.6)',cursor:'pointer',fontSize:14,
+              display:'flex',alignItems:'center',justifyContent:'center',fontFamily:'Nunito,sans-serif',
+            }}>&#8249;</button>
+            <div style={{textAlign:'center'}}>
+              <div style={{fontSize:18,fontWeight:900,color:'white',lineHeight:1}}>{monthName}</div>
+              <div style={{fontSize:11,color:'rgba(255,255,255,0.4)',fontWeight:700,marginTop:2}}>{viewYear}</div>
+            </div>
+            <button onClick={nextMonth} style={{
+              width:28,height:28,borderRadius:'50%',border:'1px solid rgba(255,255,255,0.15)',
+              background:'transparent',color:'rgba(255,255,255,0.6)',cursor:'pointer',fontSize:14,
+              display:'flex',alignItems:'center',justifyContent:'center',fontFamily:'Nunito,sans-serif',
+            }}>&#8250;</button>
+          </div>
+
+          {/* Day headers */}
+          <div style={{display:'grid',gridTemplateColumns:'repeat(7,1fr)',gap:2,marginBottom:6}}>
+            {DAYS_OF_WEEK.map(d=>(
+              <div key={d} style={{textAlign:'center',fontSize:9,fontWeight:800,
+                color:'rgba(255,255,255,0.3)',letterSpacing:'0.5px',padding:'2px 0'}}>{d}</div>
+            ))}
+          </div>
+
+          {/* Day grid */}
+          <div style={{display:'grid',gridTemplateColumns:'repeat(7,1fr)',gap:3}}>
+            {Array.from({length:firstDay}).map((_,i)=>(
+              <div key={`empty-${i}`} />
+            ))}
+            {Array.from({length:daysInMonth}).map((_,i)=>{
+              const day     = i+1
+              const isToday = day===today.getDate()&&viewMonth===today.getMonth()&&viewYear===today.getFullYear()
+              const isSel   = day===selDay
+              const hasDeal = deals.length>0 && day%3===0
+              const isPast  = new Date(viewYear,viewMonth,day)<new Date(today.getFullYear(),today.getMonth(),today.getDate())
+              return (
+                <button key={day} onClick={()=>setSelDay(isSel?null:day)} style={{
+                  width:'100%',aspectRatio:'1',borderRadius:'50%',
+                  border:isToday?'1.5px solid rgba(255,230,109,0.7)':isSel?'1.5px solid rgba(78,205,196,0.7)':'1px solid transparent',
+                  background:isSel?'rgba(78,205,196,0.18)':isToday?'rgba(255,230,109,0.12)':'transparent',
+                  color:isPast?'rgba(255,255,255,0.25)':isToday?'#FFE66D':isSel?'var(--s)':'rgba(255,255,255,0.75)',
+                  fontSize:11,fontWeight:isSel||isToday?900:700,cursor:'pointer',
+                  fontFamily:'Nunito,sans-serif',position:'relative',
+                  display:'flex',alignItems:'center',justifyContent:'center',flexDirection:'column',
+                  transition:'all 0.15s',
+                  boxShadow:isToday?'0 0 12px rgba(255,230,109,0.3)':isSel?'0 0 10px rgba(78,205,196,0.3)':'none',
+                }}>
+                  {day}
+                  {hasDeal&&!isPast&&(
+                    <div style={{
+                      width:4,height:4,borderRadius:'50%',marginTop:1,flexShrink:0,
+                      background:isSel?'var(--s)':'rgba(107,203,119,0.8)',
+                    }}/>
+                  )}
+                </button>
+              )
+            })}
+          </div>
+
+          {/* Legend */}
+          <div style={{marginTop:16,paddingTop:14,borderTop:'1px solid rgba(255,255,255,0.07)'}}>
+            {[
+              {color:'#6BCB77',label:'Deals available'},
+              {color:'#FFE66D',label:'Today'},
+              {color:'var(--s)',label:'Selected day'},
+            ].map(l=>(
+              <div key={l.label} style={{display:'flex',alignItems:'center',gap:8,marginBottom:6}}>
+                <div style={{width:7,height:7,borderRadius:'50%',background:l.color,flexShrink:0}}/>
+                <span style={{fontSize:10,color:'rgba(255,255,255,0.4)',fontWeight:700}}>{l.label}</span>
               </div>
-              <div style={{ flex:1, minWidth:0 }}>
-                <div style={{ fontSize:12, fontWeight:800, color:'var(--text)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
-                  {deal.product_name || deal.name}
-                </div>
-                <div style={{ fontSize:10, color:'var(--muted)', fontWeight:700, marginTop:1 }}>
-                  {deal.deal_description || deal.dealType || 'Weekly Special'}
-                  {deal.valid_from && !deal.live && `  ${format(new Date(deal.valid_from),'MMM d')}${format(new Date(deal.valid_to),'MMM d')}`}
-                </div>
-              </div>
-              <div style={{ textAlign:'right', flexShrink:0 }}>
-                {deal.deal_price && <div className="font-display" style={{ fontSize:16, color:'var(--p-dark)' }}>${deal.deal_price}</div>}
-                {savings && <div style={{ fontSize:10, fontWeight:800, color:'var(--p)' }}>-${savings}</div>}
+            ))}
+          </div>
+
+          {/* Store filters */}
+          {stores.length>0&&(
+            <div style={{marginTop:14,paddingTop:12,borderTop:'1px solid rgba(255,255,255,0.07)'}}>
+              <div style={{fontSize:10,fontWeight:800,color:'rgba(255,255,255,0.35)',
+                textTransform:'uppercase',letterSpacing:'0.5px',marginBottom:8}}>Stores</div>
+              <div style={{display:'flex',flexWrap:'wrap',gap:5}}>
+                {stores.map((s:string)=>{
+                  const sc = STORE_COLORS[s]||STORE_COLORS.default
+                  return (
+                    <div key={s} style={{padding:'3px 10px',borderRadius:12,fontSize:10,fontWeight:800,
+                      background:sc.bg,border:`1px solid ${sc.accent}`,color:sc.color}}>
+                      {s.charAt(0).toUpperCase()+s.slice(1)}
+                    </div>
+                  )
+                })}
               </div>
             </div>
-          )
-        })
-      )}
+          )}
+        </div>
+
+        {/* RIGHT: Deal Feed */}
+        <div>
+          {/* Filter pills */}
+          <div style={{display:'flex',gap:6,flexWrap:'wrap',marginBottom:16}}>
+            {FILTERS.map(f=>(
+              <button key={f} onClick={()=>setActiveFilter(f)} style={{
+                padding:'6px 14px',borderRadius:20,fontSize:11,fontWeight:800,
+                border:'1px solid '+(activeFilter===f?'rgba(255,230,109,0.55)':'rgba(255,255,255,0.12)'),
+                background:activeFilter===f?'rgba(255,230,109,0.12)':'transparent',
+                color:activeFilter===f?'#FFE66D':'rgba(255,255,255,0.45)',
+                cursor:'pointer',fontFamily:'Nunito,sans-serif',transition:'all 0.15s',
+              }}>{f}</button>
+            ))}
+          </div>
+
+          {/* Deal count header */}
+          <div style={{fontSize:14,fontWeight:900,color:'white',marginBottom:14}}>
+            {activeFilter==='All'?'All Active Deals':`${activeFilter}`}
+            <span style={{fontSize:12,color:'rgba(255,255,255,0.4)',fontWeight:700,marginLeft:8}}>
+              {filteredDeals.length} deals
+            </span>
+          </div>
+
+          {/* Deal cards */}
+          {filteredDeals.length===0?(
+            <div style={{...g,padding:32,textAlign:'center'}}>
+              <div style={{fontSize:32,marginBottom:12}}>🏪</div>
+              <div style={{fontSize:14,fontWeight:700,color:'rgba(255,255,255,0.5)'}}>
+                No deals loaded yet.
+              </div>
+              <button onClick={()=>refetch()} style={{
+                marginTop:14,padding:'9px 22px',borderRadius:16,
+                background:'rgba(255,230,109,0.15)',border:'1px solid rgba(255,230,109,0.35)',
+                color:'#FFE66D',fontSize:12,fontWeight:800,cursor:'pointer',fontFamily:'Nunito,sans-serif',
+              }}>Refresh Ads</button>
+            </div>
+          ):(
+            <div style={{display:'flex',flexDirection:'column',gap:12}}>
+              {filteredDeals.slice(0,20).map((deal:any,i:number)=>{
+                const store   = deal.store_slug||deal.store||'default'
+                const sc      = STORE_COLORS[store]||STORE_COLORS.default
+                const origPrice = deal.original_price
+                const dealPrice = deal.deal_price
+                const savings  = deal.savings_amount||(origPrice&&dealPrice?(origPrice-dealPrice).toFixed(2):null)
+                const pctOff   = origPrice&&dealPrice?Math.round((1-dealPrice/origPrice)*100):null
+
+                return (
+                  <div key={i} style={{
+                    ...g, padding:'16px 18px',
+                    transition:'transform 0.2s,box-shadow 0.2s',
+                    cursor:'pointer',
+                  }}
+                    onMouseEnter={e=>{
+                      (e.currentTarget as HTMLDivElement).style.transform='translateY(-2px)'
+                      ;(e.currentTarget as HTMLDivElement).style.boxShadow=`0 8px 32px rgba(0,0,0,0.3),0 0 0 1px ${sc.accent}`
+                    }}
+                    onMouseLeave={e=>{
+                      (e.currentTarget as HTMLDivElement).style.transform='translateY(0)'
+                      ;(e.currentTarget as HTMLDivElement).style.boxShadow='none'
+                    }}
+                  >
+                    <div style={{display:'flex',alignItems:'flex-start',gap:14}}>
+                      {/* Store badge */}
+                      <div style={{
+                        padding:'6px 12px',borderRadius:10,flexShrink:0,
+                        background:sc.bg,border:`1px solid ${sc.accent}`,
+                        fontSize:11,fontWeight:900,color:sc.color,
+                        minWidth:72,textAlign:'center',lineHeight:1.2,
+                      }}>
+                        {store.charAt(0).toUpperCase()+store.slice(1)}
+                        {deal.live&&<div style={{fontSize:8,opacity:0.7,marginTop:2}}>LIVE</div>}
+                      </div>
+
+                      {/* Deal info */}
+                      <div style={{flex:1,minWidth:0}}>
+                        <div style={{fontSize:14,fontWeight:800,color:'white',
+                          overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',marginBottom:4}}>
+                          {deal.product_name||deal.name||'Weekly Special'}
+                        </div>
+                        <div style={{fontSize:11,color:'rgba(255,255,255,0.45)',fontWeight:700,marginBottom:8}}>
+                          {deal.deal_description||deal.dealType||'Store Deal'}
+                          {deal.valid_from&&!deal.live&&(
+                            <span style={{marginLeft:8,color:'rgba(255,230,109,0.6)'}}>
+                              {new Date(deal.valid_from).toLocaleDateString('en',{month:'short',day:'numeric'})}
+                              {' - '}
+                              {new Date(deal.valid_to).toLocaleDateString('en',{month:'short',day:'numeric'})}
+                            </span>
+                          )}
+                        </div>
+
+                        {/* BEFORE / AFTER PRICE */}
+                        {(origPrice||dealPrice)&&(
+                          <div style={{display:'flex',alignItems:'center',gap:12,flexWrap:'wrap'}}>
+                            {origPrice&&(
+                              <div style={{display:'flex',flexDirection:'column',alignItems:'flex-start'}}>
+                                <div style={{fontSize:9,fontWeight:800,color:'rgba(255,100,100,0.6)',
+                                  textTransform:'uppercase',letterSpacing:'0.5px',marginBottom:1}}>Was</div>
+                                <div style={{fontSize:16,fontWeight:700,color:'rgba(255,100,100,0.7)',
+                                  textDecoration:'line-through',textDecorationColor:'rgba(255,100,100,0.6)',
+                                  textDecorationThickness:'2px'}}>
+                                  ${Number(origPrice).toFixed(2)}
+                                </div>
+                              </div>
+                            )}
+                            {origPrice&&dealPrice&&(
+                              <div style={{fontSize:18,color:'rgba(255,255,255,0.2)',fontWeight:300}}>→</div>
+                            )}
+                            {dealPrice&&(
+                              <div style={{display:'flex',flexDirection:'column',alignItems:'flex-start'}}>
+                                <div style={{fontSize:9,fontWeight:800,color:'rgba(107,203,119,0.8)',
+                                  textTransform:'uppercase',letterSpacing:'0.5px',marginBottom:1}}>Now</div>
+                                <div style={{fontSize:22,fontWeight:900,color:'#6BCB77',lineHeight:1}}>
+                                  ${Number(dealPrice).toFixed(2)}
+                                </div>
+                              </div>
+                            )}
+                            {savings&&(
+                              <div style={{
+                                marginLeft:'auto',padding:'6px 12px',borderRadius:12,
+                                background:pctOff&&pctOff>=40?'rgba(255,107,107,0.18)':pctOff&&pctOff>=25?'rgba(255,230,109,0.15)':'rgba(107,203,119,0.15)',
+                                border:`1px solid ${pctOff&&pctOff>=40?'rgba(255,107,107,0.4)':pctOff&&pctOff>=25?'rgba(255,230,109,0.4)':'rgba(107,203,119,0.3)'}`,
+                                textAlign:'center',
+                              }}>
+                                <div style={{fontSize:14,fontWeight:900,
+                                  color:pctOff&&pctOff>=40?'#ff6b6b':pctOff&&pctOff>=25?'#FFE66D':'#6BCB77'}}>
+                                  Save ${savings}
+                                </div>
+                                {pctOff&&(
+                                  <div style={{fontSize:10,fontWeight:800,
+                                    color:pctOff>=40?'rgba(255,107,107,0.7)':pctOff>=25?'rgba(255,230,109,0.7)':'rgba(107,203,119,0.7)'}}>
+                                    {pctOff}% off
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        )}
+                        {!origPrice&&!dealPrice&&deal.deal_price&&(
+                          <div style={{fontSize:20,fontWeight:900,color:'var(--p-dark)',marginTop:4}}>
+                            {deal.deal_price}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   )
 }
