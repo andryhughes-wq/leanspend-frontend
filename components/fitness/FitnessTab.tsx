@@ -211,7 +211,7 @@ export function FitnessTab() {
                   justifyContent:'space-between', marginBottom:4,
                 }}>
                   <span style={{fontSize:11, fontWeight:700, color:'rgba(255,255,255,0.8)'}}>{f}</span>
-                  <span style={{fontSize:10, fontWeight:800, color:'rgba(255,255,255,0.4)'}}>{FOOD_DB[f].cal}cal</span>
+                  <span style={{fontSize:10, fontWeight:800, color:'rgba(255,255,255,0.4)'}}>{FOOD_DB[f as keyof typeof FOOD_DB].cal}cal</span>
                 </button>
               ))}
             </div>
