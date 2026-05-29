@@ -138,8 +138,8 @@ export function FitnessTab() {
   return (
     <div style={{position:'relative', padding:'0 28px 36px'}}>
       {[
-        {size:30, style:{position:'fixed', left:'4%', top:'25%', animationDelay:'0s'}, color:'teal'},
-        {size:18, style:{position:'fixed', left:'91%', top:'20%', animationDelay:'1.2s'}, color:'default'},
+        {size:30, style:{position:'fixed' as const, left:'4%', top:'25%', animationDelay:'0s'}, color:'teal' as const},
+        {size:18, style:{position:'fixed' as const, left:'91%', top:'20%', animationDelay:'1.2s'}, color:'default' as const},
       ].map((b, i) => (
         <RealisticBubble key={i} size={b.size} color={b.color} style={{...b.style, zIndex:3}} onPop={addPop}/>
       ))}
