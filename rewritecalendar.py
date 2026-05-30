@@ -1,8 +1,9 @@
-'use client'
+﻿content = r"""'use client'
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { dealsApi } from '@/lib/api'
 import { useAppStore } from '@/store/appStore'
+import { RealisticBubble } from '@/components/layout/RealisticBubble'
 
 const STORE_COLORS: Record<string, {bg:string,color:string,accent:string}> = {
   kroger:     {bg:'rgba(255,107,107,0.15)', color:'#ff6b6b', accent:'rgba(255,107,107,0.4)'},
@@ -32,6 +33,14 @@ export function CalendarTab() {
   const [selDay,    setSelDay]    = useState<number|null>(today.getDate())
   const [activeFilter, setActiveFilter] = useState('All')
   const [radius,    setRadius]    = useState(0)
+  const [pops,      setPops]      = useState<{id:number,x:number,y:number}[]>([])
+  const popId = {current:0}
+
+  const addPop = (x:number,y:number) => {
+    const id = ++popId.current
+    setPops(p=>[...p,{id,x,y}])
+    setTimeout(()=>setPops(p=>p.filter(t=>t.id!==id)),900)
+  }
 
   const stores = profile.preferredStores?.length ? profile.preferredStores : ALL_STORES
 
@@ -64,6 +73,9 @@ export function CalendarTab() {
 
   return (
     <div style={{display:'flex',gap:16,flexWrap:'wrap',padding:'0 0 40px'}}>
+      {pops.map(p=>(
+        <RealisticBubble key={p.id} x={p.x} y={p.y} color="teal" />
+      ))}
 
       {/* Left: Calendar */}
       <div style={{flex:'0 0 280px',minWidth:260}}>
@@ -98,7 +110,7 @@ export function CalendarTab() {
               return (
                 <button
                   key={day}
-                  onClick={(e)=>{setSelDay(day)}}
+                  onClick={(e)=>{setSelDay(day);addPop(e.clientX,e.clientY)}}
                   style={{
                     aspectRatio:'1',borderRadius:'50%',border:'none',cursor:'pointer',
                     fontSize:12,fontWeight:isSel?700:400,
@@ -272,3 +284,8 @@ export function CalendarTab() {
     </div>
   )
 }
+"""
+
+with open('components/calendar/CalendarTab.tsx', 'w', encoding='utf-8') as f:
+    f.write(content)
+print('Rewrote CalendarTab.tsx')
