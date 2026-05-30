@@ -31,7 +31,7 @@ export function CalendarTab() {
   const [viewMonth, setViewMonth] = useState(today.getMonth())
   const [selDay,    setSelDay]    = useState<number|null>(today.getDate())
   const [activeFilter, setActiveFilter] = useState('All')
-  const [radius, setRadius] = useState(10)
+  const [radius, setRadius] = useState<number>(0)
   const [pops, setPops] = useState<{id:number,x:number,y:number}[]>([])
   const popId = {current:0}
 
@@ -43,7 +43,7 @@ export function CalendarTab() {
 
   const { data: dealsData, refetch, isFetching } = useQuery({
     queryKey: ['weekly-ads', profile.preferredStores],
-    queryFn: () => dealsApi.getWeeklyAds(profile.preferredStores),
+    queryFn: () => dealsApi.getWeeklyAds(profile.preferredStores?.length ? profile.preferredStores : undefined),
     staleTime: 1000*60*30,
   })
 
