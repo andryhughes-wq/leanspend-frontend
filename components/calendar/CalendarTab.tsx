@@ -43,7 +43,7 @@ export function CalendarTab() {
 
   const { data: dealsData, refetch, isFetching } = useQuery({
     queryKey: ['weekly-ads', profile.preferredStores],
-    queryFn: () => dealsApi.getWeeklyAds(profile.preferredStores?.length ? profile.preferredStores : undefined),
+    queryFn: () => dealsApi.getWeeklyAds(profile.preferredStores?.length ? profile.preferredStores : ['kroger','walmart','heb','target','aldi','costco','samsclub','safeway','randalls']),
     staleTime: 1000*60*30,
   })
 
@@ -96,10 +96,6 @@ export function CalendarTab() {
           <div style={{display:'flex',alignItems:'center',gap:8,background:'rgba(255,255,255,0.07)',
             border:'1px solid rgba(255,255,255,0.12)',borderRadius:22,padding:'6px 14px'}}>
             <span style={{fontSize:11,color:'rgba(255,255,255,0.5)',fontWeight:700}}>Radius</span>
-            <input type="range" min={1} max={25} value={radius} onChange={e=>setRadius(Number(e.target.value))}
-              style={{width:80,accentColor:'var(--acc)'}}/>
-            <span style={{fontSize:12,fontWeight:800,color:'var(--acc)',minWidth:40}}>{radius} mi</span>
-          </div>
           <button onClick={()=>refetch()} disabled={isFetching} style={{
             padding:'8px 18px',borderRadius:22,
             background:isFetching?'rgba(255,230,109,0.2)':'rgba(255,230,109,0.15)',
@@ -214,7 +210,21 @@ export function CalendarTab() {
         <div>
           {/* Filter pills */}
           <div style={{display:'flex',gap:6,flexWrap:'wrap',marginBottom:16}}>
-            {FILTERS.map(f=>(
+            <div style={{display:'flex',alignItems:'center',gap:6,flexWrap:'wrap'}}>
+        <span style={{fontSize:12,color:'rgba(255,255,255,0.5)',marginRight:4}}>Radius:</span>
+        {([0,5,10,25,50] as number[]).map(r=>(
+          <button key={r} onClick={()=>setRadius(r)} style={{
+            padding:'5px 12px',borderRadius:20,fontSize:12,cursor:'pointer',
+            border:radius===r?'1px solid rgba(0,255,200,0.5)':'1px solid rgba(255,255,255,0.15)',
+            background:radius===r?'rgba(0,255,200,0.12)':'transparent',
+            color:radius===r?'#00ffcc':'rgba(255,255,255,0.4)',
+            transition:'all 0.2s'
+          }}>
+            {r===0?'Any':`${r}mi`}
+          </button>
+        ))}
+      </div>
+      {FILTERS.map(f=>(
               <button key={f} onClick={()=>setActiveFilter(f)} style={{
                 padding:'6px 14px',borderRadius:20,fontSize:11,fontWeight:800,
                 border:'1px solid '+(activeFilter===f?'rgba(255,230,109,0.55)':'rgba(255,255,255,0.12)'),
