@@ -6,6 +6,7 @@ import { AuthButton } from './AuthButton'
 
 const TABS: { id: TabId; label: string }[] = [
   { id:'budget',    label:'Budget'    },
+  { id:'orbit',     label:'Orbit'     },
   { id:'calendar',  label:'Calendar'  },
   { id:'meals',     label:'Meals'     },
   { id:'nutrition', label:'Nutrition' },
