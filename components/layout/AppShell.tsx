@@ -8,6 +8,7 @@ const TABS: { id: TabId; label: string }[] = [
   { id:'budget',    label:'Budget'    },
   { id:'orbit',     label:'Orbit'     },
   { id:'diets',     label:'Diets'     },
+  { id:'scanner',   label:'Scanner'   },
   { id:'calendar',  label:'Calendar'  },
   { id:'meals',     label:'Meals'     },
   { id:'nutrition', label:'Nutrition' },
