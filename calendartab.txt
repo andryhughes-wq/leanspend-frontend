@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { dealsApi } from '@/lib/api'
@@ -24,18 +24,6 @@ const ALL_STORES = ['kroger','walmart','heb','target','aldi','costco','samsclub'
 function getDaysInMonth(year:number,month:number){return new Date(year,month+1,0).getDate()}
 function getFirstDay(year:number,month:number){return new Date(year,month,1).getDay()}
 
-// API returns camelCase; older mocks used snake_case. Read both so nothing breaks.
-function num(v:any){ const n = Number(v); return Number.isFinite(n) ? n : null }
-function getOrig(d:any){ return num(d.originalPrice ?? d.original_price) }
-function getDeal(d:any){ return num(d.dealPrice ?? d.deal_price ?? d.price) }
-function getSavingsAmt(d:any){ return num(d.savingsAmount ?? d.savings_amount) }
-function getPct(d:any){
-  const p = num(d.savingsPct ?? d.savings_pct)
-  if (p != null) return Math.round(p)
-  const o = getOrig(d), dp = getDeal(d)
-  return (o && dp) ? Math.round((1 - dp/o) * 100) : 0
-}
-
 export function CalendarTab() {
   const { profile } = useAppStore()
   const today = new Date()
@@ -57,7 +45,7 @@ export function CalendarTab() {
   const deals = dealsData?.deals || dealsData?.allDeals || []
 
   const filteredDeals = deals.filter((d:any) => {
-    if (activeFilter==='Best Savings') return (getSavingsAmt(d)||0)>2
+    if (activeFilter==='Best Savings') return (d.savings_amount||0)>2
     if (activeFilter==='Expiring Soon') return d.valid_to && new Date(d.valid_to)<new Date(Date.now()+3*86400000)
     if (activeFilter==='Flash Deals') return d.live
     return true
@@ -214,7 +202,7 @@ export function CalendarTab() {
             background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.08)',
             borderRadius:14,padding:'3rem',textAlign:'center'
           }}>
-            <div style={{fontSize:32,marginBottom:8}}>STORE</div>
+            <div style={{fontSize:32,marginBottom:8}}>🏪</div>
             <div style={{color:'rgba(255,255,255,0.5)',fontSize:14,marginBottom:12}}>No deals loaded yet.</div>
             <button
               onClick={()=>refetch()}
@@ -232,11 +220,10 @@ export function CalendarTab() {
             {filteredDeals.map((deal:any,i:number)=>{
               const storeKey = (deal.store_slug||deal.store||'').toLowerCase()
               const sc = STORE_COLORS[storeKey] || STORE_COLORS.default
-              const origPrice = getOrig(deal)
-              const dealPrice = getDeal(deal)
-              const savings   = getSavingsAmt(deal)
-              const pctOff    = getPct(deal)
-              const showStrike = origPrice != null && dealPrice != null && origPrice > dealPrice
+              const origPrice = deal.original_price
+              const dealPrice = deal.deal_price
+              const savings = deal.savings_amount
+              const pctOff = origPrice&&dealPrice ? Math.round((1-dealPrice/origPrice)*100) : 0
               return (
                 <div key={i} style={{
                   background:sc.bg,border:`1px solid ${sc.accent}`,
@@ -245,7 +232,7 @@ export function CalendarTab() {
                 }}>
                   <div style={{flex:1,minWidth:120}}>
                     <div style={{fontSize:14,fontWeight:600,color:'white',marginBottom:2}}>
-                      {deal.name||deal.product_name||'Deal'}
+                      {deal.product_name||deal.name||'Deal'}
                     </div>
                     <div style={{fontSize:12,color:sc.color}}>{deal.store_name||deal.store||storeKey}</div>
                     {deal.valid_to && (
@@ -255,24 +242,24 @@ export function CalendarTab() {
                     )}
                   </div>
                   <div style={{display:'flex',flexDirection:'column',alignItems:'flex-end',gap:2}}>
-                    {showStrike && (
+                    {origPrice && (
                       <div style={{fontSize:11,color:'rgba(255,100,100,0.7)',textDecoration:'line-through'}}>
-                        ${origPrice!.toFixed(2)}
+                        ${Number(origPrice).toFixed(2)}
                       </div>
                     )}
-                    {dealPrice != null && (
+                    {dealPrice && (
                       <div style={{fontSize:20,fontWeight:900,color:'#6BCB77',lineHeight:1}}>
-                        ${dealPrice.toFixed(2)}
+                        ${Number(dealPrice).toFixed(2)}
                       </div>
                     )}
-                    {pctOff > 0 && (
+                    {savings && (
                       <div style={{
                         padding:'2px 8px',borderRadius:10,fontSize:11,fontWeight:700,
                         background:pctOff>=25?'rgba(255,230,109,0.15)':'rgba(107,203,119,0.15)',
                         border:`1px solid ${pctOff>=25?'rgba(255,230,109,0.3)':'rgba(107,203,119,0.3)'}`,
                         color:pctOff>=25?'#FFE66D':'#6BCB77'
                       }}>
-                        {savings != null ? `Save $${savings.toFixed(2)} (${pctOff}% off)` : `${pctOff}% off`}
+                        Save ${savings} {pctOff>0&&`(${pctOff}% off)`}
                       </div>
                     )}
                   </div>
