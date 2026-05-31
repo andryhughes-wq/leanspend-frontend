@@ -20,20 +20,11 @@ interface Profile {
   expenses: Expense[]
 }
 
-export interface AuthUser {
-  id: string
-  name: string
-  email: string
-}
-
 interface AppState {
   profile: Profile
   mealPlan: any
-  auth: { user: AuthUser | null; token: string | null }
   setProfile: (p: Partial<Profile>) => void
   setMealPlan: (plan: any) => void
-  setAuth: (user: AuthUser, token: string) => void
-  clearAuth: () => void
 }
 
 const DEFAULT: Profile = {
@@ -52,11 +43,8 @@ export const useAppStore = create<AppState>()(
     set => ({
       profile: DEFAULT,
       mealPlan: null,
-      auth: { user: null, token: null },
       setProfile: p => set(s => ({ profile: { ...s.profile, ...p } })),
       setMealPlan: plan => set({ mealPlan: plan }),
-      setAuth: (user, token) => set({ auth: { user, token } }),
-      clearAuth: () => set({ auth: { user: null, token: null } }),
     }),
     { name: 'leanspend-store' }
   )

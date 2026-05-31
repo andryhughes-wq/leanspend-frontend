@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react'
 import { type TabId } from '@/app/page'
 import { GalaxyBackground } from './GalaxyBackground'
+import { AuthButton } from './AuthButton'
 
 const TABS: { id: TabId; label: string }[] = [
   { id:'budget',    label:'Budget'    },
