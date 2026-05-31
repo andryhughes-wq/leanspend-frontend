@@ -138,11 +138,7 @@ export function AppShell({ activeTab, onTabChange, children }: {
               display:'flex', alignItems:'center', justifyContent:'center',
             }}>{ic}</button>
           ))}
-          <div style={{
-            width:32, height:32, borderRadius:'50%',
-            background:'radial-gradient(circle at 35% 30%, rgba(255,255,255,0.6), rgba(167,139,250,0.4))',
-            border:'1px solid rgba(255,255,255,0.25)', cursor:'pointer',
-          }}/>
+          <AuthButton />
         </div>
       </header>
 
