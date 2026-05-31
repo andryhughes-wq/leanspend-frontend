@@ -1,7 +1,7 @@
 ﻿'use client'
 import { useState, useRef, useEffect } from 'react'
 
-const STORES = ['Kroger','Walmart','HEB','Target','Aldi','Costco','Sam''s Club','Safeway','Randalls']
+const STORES = ['Kroger','Walmart','HEB','Target','Aldi','Costco',"Sam's Club",'Safeway','Randalls']
 const STORAGE_KEY = 'leanspend-scans'
 
 type Scan = {
