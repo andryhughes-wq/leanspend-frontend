@@ -1,24 +1,36 @@
 ﻿'use client'
 import { useState } from 'react'
 import { useAppStore } from '@/store/appStore'
+import { authApi } from '@/lib/api'
+import { AuthModal } from './AuthModal'
 
 export function AuthButton() {
   const { auth, clearAuth } = useAppStore()
-  const [open, setOpen] = useState(false)
+  const [open, setOpen]   = useState(false)
+  const [modal, setModal] = useState(false)
+
+  async function signOut() {
+    try { await authApi.logout() } catch (_) {}
+    clearAuth()
+    setOpen(false)
+  }
 
   if (!auth.user) {
     return (
-      <button
-        onClick={() => alert('Login coming soon')}
-        style={{
-          padding:'7px 16px', height:34, borderRadius:99, cursor:'pointer',
-          border:'1px solid rgba(0,255,200,0.4)', background:'rgba(0,255,200,0.1)',
-          color:'#00ffcc', fontSize:12, fontWeight:800, fontFamily:'Nunito,sans-serif',
-          whiteSpace:'nowrap', transition:'all 0.2s',
-        }}
-      >
-        Sign In
-      </button>
+      <>
+        <button
+          onClick={() => setModal(true)}
+          style={{
+            padding:'7px 16px', height:34, borderRadius:99, cursor:'pointer',
+            border:'1px solid rgba(0,255,200,0.4)', background:'rgba(0,255,200,0.1)',
+            color:'#00ffcc', fontSize:12, fontWeight:800, fontFamily:'Nunito,sans-serif',
+            whiteSpace:'nowrap', transition:'all 0.2s',
+          }}
+        >
+          Sign In
+        </button>
+        {modal && <AuthModal onClose={() => setModal(false)} />}
+      </>
     )
   }
 
@@ -57,7 +69,7 @@ export function AuthButton() {
             {auth.user.email}
           </div>
           <button
-            onClick={() => { clearAuth(); setOpen(false) }}
+            onClick={signOut}
             style={{
               width:'100%', textAlign:'left', padding:'8px 10px', borderRadius:8,
               cursor:'pointer', border:'none', background:'transparent',

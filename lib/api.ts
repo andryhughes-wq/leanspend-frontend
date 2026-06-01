@@ -1,10 +1,11 @@
-import axios from 'axios'
+﻿import axios from 'axios'
 
 const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'
 
 export const api = axios.create({
   baseURL: API,
   timeout: 60000,
+  withCredentials: true,
   headers: { 'Content-Type': 'application/json' },
 })
 
@@ -22,14 +23,10 @@ export const budgetApi = {
 }
 
 export const mealsApi = {
-  // Weekly generation (new)
   generateWeek: (body: object) => api.post('/meals/generate-week', body).then(r => r.data),
-  // Add custom food to plan
   addFood: (body: object) => api.post('/meals/add-food', body).then(r => r.data),
-  // Preset plans
   getPresets: () => api.get('/meals/presets').then(r => r.data),
   getPreset: (goal: string) => api.get(`/meals/presets/${goal}`).then(r => r.data),
-  // Saved plans
   getPlan: (userId: string, month: number, year: number) =>
     api.get(`/meals/plan/${userId}`, { params: { month, year } }).then(r => r.data),
   getDay: (userId: string, date: string) =>
@@ -37,14 +34,12 @@ export const mealsApi = {
 }
 
 export const dealsApi = {
-  // Live weekly ads from store websites
   getWeeklyAds: (stores?: string[]) =>
     api.get('/deals/weekly-ads', { params: stores ? { stores: stores.join(',') } : {} }).then(r => r.data),
   getStoreAd: (store: string) =>
     api.get(`/deals/weekly-ads/${store}`).then(r => r.data),
   getAdStatus: () =>
     api.get('/deals/ad-status').then(r => r.data),
-  // DB deals + live merged
   getActive: (params?: object) => api.get('/deals/active', { params }).then(r => r.data),
   getCalendar: (month: number, year: number) =>
     api.get('/deals/calendar', { params: { month, year } }).then(r => r.data),
@@ -67,4 +62,13 @@ export const chatApi = {
 export const themeApi = {
   save: (userId: string, themeColor: string, themeName?: string) =>
     api.post('/theme/save', { userId, themeColor, themeName }).then(r => r.data),
+}
+
+export const authApi = {
+  register: (email: string, password: string, displayName?: string) =>
+    api.post('/auth/register', { email, password, displayName }).then(r => r.data),
+  login: (email: string, password: string) =>
+    api.post('/auth/login', { email, password }).then(r => r.data),
+  me: () => api.get('/auth/me').then(r => r.data),
+  logout: () => api.post('/auth/logout', {}).then(r => r.data),
 }
