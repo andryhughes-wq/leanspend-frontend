@@ -94,7 +94,7 @@ export function ScannerTab() {
   const { auth } = useAppStore()
   const save = () => {
     if (barcode && price) {
-      const send = (lat, lng) => geoApi.submit({
+      const send = (lat: number | undefined, lng: number | undefined) => geoApi.submit({
         productName: product?.name || 'Unknown',
         brand: product?.brand || undefined,
         storeName: store,
@@ -102,11 +102,11 @@ export function ScannerTab() {
         barcode,
         latitude: lat,
         longitude: lng,
-      }).then(() => setStatus('✓ Shared to community')).catch((e: any) => setStatus('✗ Submit failed (' + (e?.response?.status || e?.message || 'network') + ')'))
+      }).then(() => setStatus('âœ“ Shared to community')).catch((e: any) => setStatus('âœ— Submit failed (' + (e?.response?.status || e?.message || 'network') + ')'))
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
           pos => send(pos.coords.latitude, pos.coords.longitude),
-          () => setStatus('⚠ Location blocked'),
+          () => setStatus('âš  Location blocked'),
           { timeout: 8000 }
         )
       } else { send(undefined, undefined) }
