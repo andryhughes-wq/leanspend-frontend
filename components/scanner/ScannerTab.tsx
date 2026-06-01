@@ -93,7 +93,7 @@ export function ScannerTab() {
 
   const { auth } = useAppStore()
   const save = () => {
-    if (auth?.token && barcode && price) {
+    if (barcode && price) {
       const send = (lat, lng) => geoApi.submit({
         productName: product?.name || 'Unknown',
         brand: product?.brand || undefined,
