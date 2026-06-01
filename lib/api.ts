@@ -72,3 +72,10 @@ export const authApi = {
   me: () => api.get('/auth/me').then(r => r.data),
   logout: () => api.post('/auth/logout', {}).then(r => r.data),
 }
+
+export const geoApi = {
+  submit: (body: { productName: string; price: number; storeName?: string; brand?: string; barcode?: string; latitude?: number; longitude?: number; zip?: string }) =>
+    api.post('/deals/submit', body).then(r => r.data),
+  nearby: (lat: number, lng: number, radius: number) =>
+    api.get('/deals/nearby', { params: { lat, lng, radius } }).then(r => r.data),
+}

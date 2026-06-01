@@ -10,8 +10,9 @@ import { MealsTab }     from '@/components/meals/MealsTab'
 import { NutritionTab } from '@/components/nutrition/NutritionTab'
 import { TipsTab }      from '@/components/tips/TipsTab'
 import { FitnessTab }   from '@/components/fitness/FitnessTab'
+import { NearbyTab }    from '@/components/nearby/NearbyTab'
 
-export type TabId = 'budget' | 'orbit' | 'diets' | 'scanner' | 'calendar' | 'meals' | 'nutrition' | 'fitness' | 'tips'
+export type TabId = 'budget' | 'orbit' | 'diets' | 'scanner' | 'calendar' | 'meals' | 'nutrition' | 'fitness' | 'tips' | 'nearby'
 
 export default function HomePage() {
   const [tab, setTab] = useState<TabId>('budget')
@@ -26,6 +27,7 @@ export default function HomePage() {
       {tab === 'nutrition' && <NutritionTab />}
       {tab === 'fitness'   && <FitnessTab />}
       {tab === 'tips'      && <TipsTab />}
+        {tab === 'nearby'    && <NearbyTab />}
     </AppShell>
   )
 }
