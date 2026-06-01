@@ -1,5 +1,6 @@
 ﻿'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { useAppStore } from '@/store/appStore'
 import { authApi } from '@/lib/api'
 
@@ -11,6 +12,9 @@ export function AuthModal({ onClose }: { onClose: () => void }) {
   const [name, setName]         = useState('')
   const [busy, setBusy]         = useState(false)
   const [error, setError]       = useState<string | null>(null)
+  const [mounted, setMounted]   = useState(false)
+
+  useEffect(() => { setMounted(true) }, [])
 
   async function submit() {
     setError(null)
@@ -36,11 +40,13 @@ export function AuthModal({ onClose }: { onClose: () => void }) {
     color:'white', fontSize:14, fontFamily:'Nunito,sans-serif', outline:'none', boxSizing:'border-box',
   }
 
-  return (
+  if (!mounted) return null
+
+  const overlay = (
     <div
       onClick={onClose}
       style={{
-        position:'fixed', inset:0, zIndex:1000, display:'flex',
+        position:'fixed', top:0, left:0, right:0, bottom:0, zIndex:99999, display:'flex',
         alignItems:'center', justifyContent:'center',
         background:'rgba(0,0,0,0.6)', backdropFilter:'blur(6px)',
       }}
@@ -49,7 +55,7 @@ export function AuthModal({ onClose }: { onClose: () => void }) {
         onClick={e => e.stopPropagation()}
         style={{
           width:'90%', maxWidth:380, padding:28, borderRadius:20,
-          background:'rgba(10,16,28,0.97)', backdropFilter:'blur(24px)',
+          background:'rgba(10,16,28,0.98)', backdropFilter:'blur(24px)',
           border:'1px solid rgba(0,255,200,0.2)',
           boxShadow:'0 30px 80px rgba(0,0,0,0.7)', fontFamily:'Nunito,sans-serif',
         }}
@@ -101,4 +107,6 @@ export function AuthModal({ onClose }: { onClose: () => void }) {
       </div>
     </div>
   )
+
+  return createPortal(overlay, document.body)
 }
