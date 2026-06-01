@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 import { geoApi } from '@/lib/api'
 import { useAppStore } from '@/store/appStore'
 import { useState, useRef, useEffect } from 'react'
@@ -102,11 +102,11 @@ export function ScannerTab() {
         barcode,
         latitude: lat,
         longitude: lng,
-      }).catch(() => {})
+      }).then(() => setStatus('✓ Shared to community')).catch((e: any) => setStatus('✗ Submit failed (' + (e?.response?.status || e?.message || 'network') + ')'))
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
           pos => send(pos.coords.latitude, pos.coords.longitude),
-          () => send(undefined, undefined),
+          () => setStatus('⚠ Location blocked'),
           { timeout: 8000 }
         )
       } else { send(undefined, undefined) }
