@@ -102,11 +102,11 @@ export function ScannerTab() {
         barcode,
         latitude: lat,
         longitude: lng,
-      }).then(() => setStatus('âœ“ Shared to community')).catch((e: any) => setStatus('âœ— Submit failed (' + (e?.response?.status || e?.message || 'network') + ')'))
+      }).then(() => setStatus('\u2713 Shared to community')).catch((e: any) => setStatus('\u2717 Submit failed (' + (e?.response?.status || e?.message || 'network') + ')'))
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
           pos => send(pos.coords.latitude, pos.coords.longitude),
-          () => setStatus('âš  Location blocked'),
+          () => setStatus('\u26A0 Location blocked'),
           { timeout: 8000 }
         )
       } else { send(undefined, undefined) }
