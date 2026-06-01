@@ -91,7 +91,26 @@ export function ScannerTab() {
     setLoading(false)
   }
 
+  const { auth } = useAppStore()
   const save = () => {
+    if (auth?.token && barcode && price) {
+      const send = (lat, lng) => geoApi.submit({
+        productName: product?.name || 'Unknown',
+        brand: product?.brand || undefined,
+        storeName: store,
+        price: parseFloat(price),
+        barcode,
+        latitude: lat,
+        longitude: lng,
+      }).catch(() => {})
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          pos => send(pos.coords.latitude, pos.coords.longitude),
+          () => send(undefined, undefined),
+          { timeout: 8000 }
+        )
+      } else { send(undefined, undefined) }
+    }
     if (!barcode || !price) { setStatus('Enter a barcode and price first.'); return }
     const scan: Scan = {
       id: Date.now().toString(), barcode,
