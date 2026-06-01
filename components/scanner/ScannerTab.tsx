@@ -1,4 +1,6 @@
 ﻿'use client'
+import { geoApi } from '@/lib/api'
+import { useAppStore } from '@/store/appStore'
 import { useState, useRef, useEffect } from 'react'
 
 const STORES = ['Kroger','Walmart','HEB','Target','Aldi','Costco',"Sam's Club",'Safeway','Randalls']
