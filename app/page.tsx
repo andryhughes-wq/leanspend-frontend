@@ -1,5 +1,7 @@
-﻿'use client'
-import { useState } from 'react'
+'use client'
+import { useState, useEffect } from 'react'
+import { authApi } from '@/lib/api'
+import { useAppStore } from '@/store/appStore'
 import { AppShell } from '@/components/layout/AppShell'
 import { BudgetTab }    from '@/components/budget/BudgetTab'
 import { OrbitTab }    from '@/components/budget/OrbitTab'
@@ -16,6 +18,12 @@ export type TabId = 'budget' | 'orbit' | 'diets' | 'scanner' | 'calendar' | 'mea
 
 export default function HomePage() {
   const [tab, setTab] = useState<TabId>('budget')
+  const setAuth = useAppStore(s => s.setAuth)
+  useEffect(() => {
+    authApi.me()
+      .then((data: any) => { if (data && data.user) setAuth(data.user, data.token || '') })
+      .catch(() => {})
+  }, [setAuth])
   return (
     <AppShell activeTab={tab} onTabChange={setTab}>
       {tab === 'budget'    && <BudgetTab />}
