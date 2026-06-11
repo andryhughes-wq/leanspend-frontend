@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 import { useState, useRef, useEffect } from 'react'
 import { useMutation } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
@@ -153,6 +153,8 @@ function Bubble({ size, style, onPop }: { size:number; style:React.CSSProperties
 
 export function BudgetTab() {
   const { profile, setProfile } = useAppStore()
+  const [isMobile, setIsMobile] = useState(false)
+  useEffect(() => { const c = () => setIsMobile(window.innerWidth < 768); c(); window.addEventListener('resize', c); return () => window.removeEventListener('resize', c) }, [])
   const [income, setIncome]   = useState(profile.monthlyIncome ? String(profile.monthlyIncome) : '')
   const [mode, setMode]       = useState<'individual'|'family'>(profile.householdSize > 1 ? 'family' : 'individual')
   const [expenses, setExpenses] = useState<Expense[]>(
@@ -278,7 +280,7 @@ export function BudgetTab() {
           }}>{isPending?'Cooking...\u{1F35D}':'Calculate Budget'}</button>
         </div>
 
-        <div style={{ display:'grid', gridTemplateColumns:'420px 1fr', gap:20, marginBottom:22 }}>
+        <div style={{ display:'grid', gridTemplateColumns: isMobile ? '1fr' : '420px 1fr', gap:20, marginBottom:22 }}>
 
           {/* LEFT */}
           <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
