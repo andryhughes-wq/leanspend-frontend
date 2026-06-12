@@ -268,7 +268,7 @@ export function BudgetTab() {
 
       <div style={{ position:'relative', zIndex:10, padding:'0 28px 36px' }}>
         <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'20px 0 26px' }}>
-          <div style={{ fontSize:17, fontWeight:700, color:'rgba(255,255,255,0.5)' }}>Budget Dashboard</div>
+          <div className="gloss-head" style={{ fontSize:17, fontWeight:700, color:'rgba(255,255,255,0.5)' }}>Budget Dashboard</div>
           <button onClick={()=>calculate()} disabled={isPending||!income} style={{
             padding:'9px 28px', borderRadius:22,
             background:isPending||!income?'rgba(107,203,119,0.2)':'var(--p)',
@@ -448,7 +448,7 @@ export function BudgetTab() {
                 cursor:'pointer', animation:'orbPulse 3s ease-in-out infinite', userSelect:'none',
               }}>
                 <div style={{ fontSize:9, color:'rgba(255,255,255,0.65)', fontWeight:700, letterSpacing:1.5, textTransform:'uppercase', marginBottom:4 }}>Food Budget</div>
-                <div style={{ fontSize:42, fontWeight:900, color:'white', lineHeight:1, textShadow:'0 0 24px rgba(255,255,255,0.4)' }}>${budget||490}</div>
+                <div className="gloss-num" style={{ fontSize:42, fontWeight:900, color:'white', lineHeight:1, textShadow:'0 0 24px rgba(255,255,255,0.4)' }}>${budget||490}</div>
                 <div style={{ fontSize:11, color:'rgba(255,255,255,0.55)', fontWeight:700, marginTop:4 }}>
                   {incomeNum>0?foodOfIncome+'% of income':'Monthly'}
                 </div>
