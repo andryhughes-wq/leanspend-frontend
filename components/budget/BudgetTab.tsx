@@ -5,6 +5,8 @@ import toast from 'react-hot-toast'
 import { budgetApi } from '@/lib/api'
 import { useAppStore, type Expense } from '@/store/appStore'
 import { ChatWidget } from '@/components/chat/ChatWidget'
+import { BeltBackground } from '@/components/budget/BeltBackground'
+import { useSurface } from '@/lib/useSurface'
 
 const ALLERGENS = ['Gluten','Dairy','Eggs','Peanuts','Soy','Shellfish','Fish','Wheat']
 const DYES      = ['Red #40','Yellow #5','Yellow #6','Blue #1','Red #3']
@@ -154,6 +156,7 @@ function Bubble({ size, style, onPop }: { size:number; style:React.CSSProperties
 export function BudgetTab() {
   const { profile, setProfile } = useAppStore()
   const [isMobile, setIsMobile] = useState(false)
+  const surface = useSurface()
   useEffect(() => { const c = () => setIsMobile(window.innerWidth < 768); c(); window.addEventListener('resize', c); return () => window.removeEventListener('resize', c) }, [])
   const [income, setIncome]   = useState(profile.monthlyIncome ? String(profile.monthlyIncome) : '')
   const [mode, setMode]       = useState<'individual'|'family'>(profile.householdSize > 1 ? 'family' : 'individual')
@@ -252,6 +255,7 @@ export function BudgetTab() {
 
   return (
     <div style={{ position:'relative' }}>
+      {surface === 'web' && <BeltBackground />}
       {showChibi && <ChibiModal onClose={() => setShowChibi(false)} />}
 
       {BUBBLES.map((b,i) => (
