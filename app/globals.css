@@ -145,7 +145,7 @@ body {
 .belt-mid{animation:belt-travel 55s linear infinite;opacity:.75;}
 .belt-near{animation:belt-travel 32s linear infinite;}
 .belt-band{position:absolute;top:38%;left:-10%;width:130%;height:34%;transform:rotate(-7deg);background:linear-gradient(180deg,transparent,rgba(120,110,150,.10) 40%,rgba(150,140,180,.16) 50%,rgba(120,110,150,.10) 60%,transparent);filter:blur(24px);pointer-events:none;}
-.rock{position:absolute;background:radial-gradient(circle at 34% 30%,#9a8f82,#5c5048 55%,#322c28);border-radius:46% 54% 50% 50%/55% 48% 52% 45%;box-shadow:inset -3px -4px 8px rgba(0,0,0,.6),inset 2px 2px 5px rgba(255,255,255,.12);}
+.rock{position:absolute;background:radial-gradient(circle at 32% 26%,#b3a594 0%,#7d6f60 38%,#4a3f36 70%,#241d18 100%);border-radius:46% 54% 48% 52%/56% 47% 53% 44%;box-shadow:inset -6px -8px 18px rgba(0,0,0,.7),inset 4px 5px 12px rgba(255,255,255,.14),0 0 24px rgba(0,0,0,.35);}
 @keyframes moon-in{0%{opacity:0;transform:scale(.2)}60%{opacity:1;transform:scale(1.15)}100%{opacity:1;transform:scale(1)}}
 @keyframes moon-orbit{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
 .moon{position:absolute;border-radius:50%;animation:moon-in .7s cubic-bezier(.34,1.56,.64,1) forwards;pointer-events:none;}
