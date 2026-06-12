@@ -132,3 +132,24 @@ body {
 .chip.active   { background: rgba(107,203,119,0.18); border-color: var(--p); color: var(--p); }
 .chip.s-active { background: rgba(78,205,196,0.18); border-color: var(--s); color: var(--s); }
 
+
+
+/* ===== LeanSpend Galaxy Visual System ===== */
+.gloss-head{background:linear-gradient(180deg,#fff 0%,#e8f0ff 42%,#9fb8e8 60%,#fff 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+.gloss-num{background:linear-gradient(180deg,#fff 0%,#d6f6ff 38%,#3fc8f0 56%,#aef0ff 72%,#fff 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 2px 6px rgba(0,200,255,.35));}
+.gloss-stat{background:linear-gradient(180deg,#fff,#cfe6ff 55%,#fff);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+@keyframes belt-travel{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@keyframes rock-spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+.belt-layer{position:absolute;top:0;left:0;width:200%;height:100%;will-change:transform;pointer-events:none;}
+.belt-far{animation:belt-travel 90s linear infinite;opacity:.5;}
+.belt-mid{animation:belt-travel 55s linear infinite;opacity:.75;}
+.belt-near{animation:belt-travel 32s linear infinite;}
+.belt-band{position:absolute;top:38%;left:-10%;width:130%;height:34%;transform:rotate(-7deg);background:linear-gradient(180deg,transparent,rgba(120,110,150,.10) 40%,rgba(150,140,180,.16) 50%,rgba(120,110,150,.10) 60%,transparent);filter:blur(24px);pointer-events:none;}
+.rock{position:absolute;background:radial-gradient(circle at 34% 30%,#9a8f82,#5c5048 55%,#322c28);border-radius:46% 54% 50% 50%/55% 48% 52% 45%;box-shadow:inset -3px -4px 8px rgba(0,0,0,.6),inset 2px 2px 5px rgba(255,255,255,.12);}
+@keyframes moon-in{0%{opacity:0;transform:scale(.2)}60%{opacity:1;transform:scale(1.15)}100%{opacity:1;transform:scale(1)}}
+@keyframes moon-orbit{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+.moon{position:absolute;border-radius:50%;animation:moon-in .7s cubic-bezier(.34,1.56,.64,1) forwards;pointer-events:none;}
+.moon .moon-body{position:absolute;inset:0;border-radius:50%;animation:moon-orbit 7s ease-in-out infinite;}
+.moon .moon-lbl{position:absolute;top:104%;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:9px;font-weight:800;color:rgba(255,255,255,.55);}
+@media (prefers-reduced-motion: reduce){.belt-far,.belt-mid,.belt-near,.rock,.moon .moon-body{animation:none !important;}}
+/* ===== end galaxy ===== */
