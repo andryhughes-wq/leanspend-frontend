@@ -1,7 +1,7 @@
-﻿'use client'
+'use client'
 import { useState, useEffect } from 'react'
 import { type TabId } from '@/app/page'
-import { GalaxyBackground } from './GalaxyBackground'
+import WalkBackground from '@/components/budget/WalkBackground'
 import { AuthButton } from './AuthButton'
 
 const TABS: { id: TabId; label: string }[] = [
@@ -48,8 +48,8 @@ export function AppShell({ activeTab, onTabChange, children }: {
   const getTabColor = (i: number) => `hsl(${(colorCycle + i * 60) % 360}, 75%, 68%)`
 
   return (
-    <div style={{ minHeight:'100vh', display:'flex', flexDirection:'column', position:'relative', background:'#0a1220' }}>
-      <GalaxyBackground />
+    <div style={{ minHeight:'100vh', display:'flex', flexDirection:'column', position:'relative', background:'transparent' }}>
+      <WalkBackground />
 
       <header style={{
         padding:'0 24px', display:'flex', alignItems:'center',

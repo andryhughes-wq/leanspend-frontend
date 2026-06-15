@@ -5,7 +5,6 @@ import toast from 'react-hot-toast'
 import { budgetApi } from '@/lib/api'
 import { useAppStore, type Expense } from '@/store/appStore'
 import { ChatWidget } from '@/components/chat/ChatWidget'
-import { BeltBackground } from '@/components/budget/BeltBackground'
 import { useSurface } from '@/lib/useSurface'
 import { CalcAnimation, type CalcAnimationHandle } from '@/components/budget/CalcAnimation'
 
@@ -256,7 +255,6 @@ export function BudgetTab() {
 
   return (
     <div style={{ position:'relative' }}>
-      {surface === 'web' && <BeltBackground />}
       <CalcAnimation ref={calcRef} />
 
       {BUBBLES.map((b,i) => (
