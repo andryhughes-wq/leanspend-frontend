@@ -7,6 +7,7 @@ import { useAppStore, type Expense } from '@/store/appStore'
 import { ChatWidget } from '@/components/chat/ChatWidget'
 import { BeltBackground } from '@/components/budget/BeltBackground'
 import { useSurface } from '@/lib/useSurface'
+import { CalcAnimation, type CalcAnimationHandle } from '@/components/budget/CalcAnimation'
 
 const ALLERGENS = ['Gluten','Dairy','Eggs','Peanuts','Soy','Shellfish','Fish','Wheat']
 const DYES      = ['Red #40','Yellow #5','Yellow #6','Blue #1','Red #3']
@@ -167,7 +168,7 @@ export function BudgetTab() {
   )
   const [customLabel, setCustomLabel] = useState('')
   const [showCustom, setShowCustom]   = useState(false)
-  const [showChibi, setShowChibi]     = useState(false)
+  const calcRef = useRef<CalcAnimationHandle>(null)
   const [pops, setPops] = useState<{id:number,x:number,y:number,text:string}[]>([])
   const pid = useRef(0)
 
@@ -190,12 +191,12 @@ export function BudgetTab() {
     }),
     onSuccess: d => {
       setProfile({ monthlyIncome:incomeNum, foodBudget:d.recommendedFoodBudget||calculatedFood, expenses })
-      setShowChibi(true)
+      calcRef.current?.play(d.recommendedFoodBudget||calculatedFood)
       toast.success('Budget set! $'+(d.recommendedFoodBudget||calculatedFood)+'/mo')
     },
     onError: () => {
       setProfile({ monthlyIncome:incomeNum, foodBudget:calculatedFood, expenses })
-      setShowChibi(true)
+      calcRef.current?.play(calculatedFood)
       toast.success('Budget set! $'+calculatedFood+'/mo')
     },
   })
@@ -256,7 +257,7 @@ export function BudgetTab() {
   return (
     <div style={{ position:'relative' }}>
       {surface === 'web' && <BeltBackground />}
-      {showChibi && <ChibiModal onClose={() => setShowChibi(false)} />}
+      <CalcAnimation ref={calcRef} />
 
       {BUBBLES.map((b,i) => (
         <Bubble key={i} size={b.size} style={{...b.style,zIndex:3}} onPop={(x,y)=>addPop(x,y,POP_W[i])} />
