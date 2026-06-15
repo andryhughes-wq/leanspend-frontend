@@ -163,8 +163,8 @@ export default function WalkBackground() {
   return (
     <>
       <div 
-        className="fixed inset-0 -z-30"
         style={{
+          position: 'fixed', inset: 0, zIndex: 0,
           backgroundImage: "url('/asteroid-path.jpg')",
           backgroundSize: 'cover',
           backgroundPosition: 'center 38%',
@@ -173,10 +173,10 @@ export default function WalkBackground() {
           willChange: 'transform',
         }}
       />
-      <div className="fixed inset-0 -z-20 bg-black/25" />
+      <div style={{position:'fixed',inset:0,zIndex:1,background:'rgba(0,0,0,0.25)'}} />
       <canvas 
         ref={canvasRef} 
-        className="fixed inset-0 -z-10 pointer-events-none" 
+        style={{position:'fixed',inset:0,zIndex:2,pointerEvents:'none'}} 
       />
     </>
   );
