@@ -190,3 +190,14 @@ body {
 .calc-ring{position:absolute;left:350px;top:260px;width:300px;height:300px;border-radius:50%;border:3px solid rgba(0,255,204,.55);opacity:0;pointer-events:none;transform:translate(-50%,-50%) rotateX(72deg);box-shadow:0 0 22px rgba(0,255,204,.35);animation:ring-in .6s ease .2s forwards,ring-spin 9s linear infinite;}
 .calc-dismiss{position:absolute;bottom:6%;left:50%;transform:translateX(-50%);font-size:12px;font-weight:700;letter-spacing:.5px;color:rgba(180,255,240,.6);pointer-events:none;}
 /* === end calc animation element styles === */
+@keyframes heartFloat {
+  0%, 100% { transform: translateY(0) scale(1) rotate(0deg); }
+  25% { transform: translateY(-8px) scale(1.012) rotate(0.6deg); }
+  50% { transform: translateY(0) scale(1.02) rotate(0deg); }
+  75% { transform: translateY(6px) scale(1.012) rotate(-0.6deg); }
+}
+@keyframes heartFlicker {
+  0%, 100% { filter: brightness(1) saturate(1.05); }
+  40% { filter: brightness(1.22) saturate(1.3); }
+  60% { filter: brightness(1.05) saturate(1.15); }
+}

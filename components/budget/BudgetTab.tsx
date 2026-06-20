@@ -446,9 +446,9 @@ export function BudgetTab() {
               <div onClick={e=>addPop(e.clientX,e.clientY,'$'+(budget||490)+'!')} style={{
                 position:'relative', zIndex:20, width:440, height:300,
                 backgroundImage:"url('/images/budget-planet-heart.jpg')", backgroundSize:'contain', backgroundRepeat:'no-repeat', backgroundPosition:'center', backgroundColor:'transparent', mixBlendMode:'screen',
-                boxShadow:'0 0 80px rgba(255,60,60,0.45), 0 0 160px rgba(255,40,40,0.22), inset 0 0 50px rgba(0,0,0,0.35)',
+                maskImage:'radial-gradient(ellipse 70% 70% at 50% 50%, #000 55%, transparent 80%)', WebkitMaskImage:'radial-gradient(ellipse 70% 70% at 50% 50%, #000 55%, transparent 80%)',
                 display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center',
-                cursor:'pointer', animation:'orbPulse 3s ease-in-out infinite, heartGlow 2.6s ease-in-out infinite', userSelect:'none',
+                cursor:'pointer', animation:'heartFloat 6s ease-in-out infinite, heartFlicker 2.8s ease-in-out infinite', userSelect:'none',
               }}>
                 <div style={{ fontSize:9, color:'rgba(255,255,255,0.65)', fontWeight:700, letterSpacing:1.5, textTransform:'uppercase', marginBottom:4 }}>Food Budget</div>
                 <div className="gloss-num" style={{ fontSize: budget?42:26, fontWeight:900, color:'white', lineHeight:1, letterSpacing: budget?0:2, textShadow:'0 0 24px rgba(255,255,255,0.45), 0 0 8px rgba(0,0,0,0.6)' }}>{isPending?'...':(budget?('$'+budget):'CALCULATE')}</div>
