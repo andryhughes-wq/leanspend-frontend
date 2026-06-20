@@ -445,7 +445,7 @@ export function BudgetTab() {
               ))}
               <div onClick={e=>addPop(e.clientX,e.clientY,'$'+(budget||490)+'!')} style={{
                 position:'relative', zIndex:20, width:440, height:300,
-                backgroundImage:"url('/images/budget-planet-heart.jpg')", backgroundSize:'contain', backgroundRepeat:'no-repeat', backgroundPosition:'center', backgroundColor:'transparent',
+                backgroundImage:"url('/images/budget-planet-heart.jpg')", backgroundSize:'contain', backgroundRepeat:'no-repeat', backgroundPosition:'center', backgroundColor:'transparent' mixBlendMode:'screen',
                 boxShadow:'0 0 80px rgba(255,60,60,0.45), 0 0 160px rgba(255,40,40,0.22), inset 0 0 50px rgba(0,0,0,0.35)',
                 display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center',
                 cursor:'pointer', animation:'orbPulse 3s ease-in-out infinite, heartGlow 2.6s ease-in-out infinite', userSelect:'none',
