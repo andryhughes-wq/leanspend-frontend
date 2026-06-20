@@ -48,7 +48,7 @@ export const dealsApi = {
 }
 
 export const nutritionApi = {
-  search:      (q: string) => api.get('/nutrition/search', { params: { q } }).then(r => r.data),
+  search:      (q: string, opts?: { dataType?: string; limit?: number }) => api.get('/nutrition/search', { params: { q, ...(opts || {}) } }).then(r => r.data),
   getFacts:    (id: string) => api.get(`/nutrition/facts/${id}`).then(r => r.data),
   getBenefits: (ingredient: string) =>
     api.get('/nutrition/benefits', { params: { ingredient } }).then(r => r.data),
