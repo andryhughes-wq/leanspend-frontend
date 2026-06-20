@@ -60,22 +60,7 @@ export function AppShell({ activeTab, onTabChange, children }: {
         borderBottom:'1px solid rgba(255,255,255,0.07)', flexShrink:0,
       }}>
         <div style={{ display:'flex', alignItems:'center', gap:0 }}>
-          <div style={{
-            width:36, height:36, borderRadius:'50%', marginRight:10,
-            background:'radial-gradient(circle at 35% 30%, #b8f4ff, #40caf0 40%, #1a7fd4 70%, #060f2e)',
-            boxShadow:'0 0 18px rgba(0,200,255,0.55)',
-            display:'flex', alignItems:'center', justifyContent:'center',
-            fontSize:14, fontWeight:900, color:'white', flexShrink:0,
-          }}>L</div>
-          <span className="font-display" style={{ fontSize:22, color:'#fff', letterSpacing:0.3 }}>Lean</span>
-          <svg width="52" height="26" viewBox="0 0 52 26" style={{ margin:'0 2px', display:'block' }}>
-            <polyline points="0,13 7,13 11,3 15,23 19,7 23,19 27,13 35,13 39,5 43,21 47,13 52,13"
-              fill="none" stroke="#ff6b6b" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"
-              style={{ filter:'drop-shadow(0 0 4px rgba(255,107,107,0.8))' }}/>
-            <polyline points="0,13 7,13 11,3 15,23 19,7 23,19 27,13 35,13 39,5 43,21 47,13 52,13"
-              fill="none" stroke="rgba(255,107,107,0.25)" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-          <span className="font-display" style={{ fontSize:22, color:'var(--acc)', letterSpacing:0.3 }}>Spend</span>
+          <img src="/images/leanspend-logo.png" alt="LeanSpend" style={{ height:40, width:'auto', display:'block' }} />
         </div>
 
         <nav style={{ display:'flex', gap:4 }}>
