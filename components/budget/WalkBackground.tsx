@@ -1,25 +1,46 @@
-﻿'use client';
+'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { useAppStore } from '@/store/appStore';
+import { CAT_COLORS, CAT_FALLBACK } from '@/lib/catColors';
+import { useSurface } from '@/lib/useSurface';
 
-interface CelestialBody {
+interface Moon {
+  id: string;
   x: number;
   y: number;
   size: number;
-  speed: number;
-  alpha: number;
   color: string;
-  drift: number;
+  alpha: number;
   hasRing: boolean;
+  ringThickness: number;
+  rotation: number;
+  rotationSpeed: number;
+  hasCraters: boolean;
+  shapeFactor: number;
 }
+
+// expenses live on profile.expenses in the store (written when "Calculate Budget" runs)
+const getExpenses = (): any[] => {
+  const p = useAppStore.getState().profile as any;
+  return (p && Array.isArray(p.expenses)) ? p.expenses : [];
+};
 
 export default function WalkBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const bodiesRef = useRef<CelestialBody[]>([]);
+  const moonsRef = useRef<Map<string, Moon>>(new Map());
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [mounted, setMounted] = useState(false);
   const audioContextRef = useRef<AudioContext | null>(null);
+  const hasMountedRef = useRef(false);
+  const surface = useSurface();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const playCuteSound = () => {
+    if (!hasMountedRef.current) return;
     try {
       if (!audioContextRef.current) {
         audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
@@ -35,16 +56,16 @@ export default function WalkBackground() {
       osc1.frequency.value = 1180;
       filter.type = 'lowpass';
       filter.frequency.value = 1500;
-      gain1.gain.value = 0.22;
-      gain1.gain.setValueAtTime(0.22, now);
+      gain1.gain.value = 0.2;
+      gain1.gain.setValueAtTime(0.2, now);
       gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
 
       const osc2 = audio.createOscillator();
       const gain2 = audio.createGain();
       osc2.type = 'sine';
       osc2.frequency.value = 740;
-      gain2.gain.value = 0.12;
-      gain2.gain.setValueAtTime(0.12, now);
+      gain2.gain.value = 0.11;
+      gain2.gain.setValueAtTime(0.11, now);
       gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
 
       osc1.connect(filter);
@@ -60,49 +81,89 @@ export default function WalkBackground() {
     } catch (_) {}
   };
 
-  const spawnBody = (x?: number, y?: number) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const hasRing = Math.random() > 0.6;
-
-    const body: CelestialBody = {
-      x: x ?? Math.random() * canvas.width,
-      y: y ?? canvas.height * 0.25 + Math.random() * (canvas.height * 0.55),
-      size: hasRing ? 8 + Math.random() * 10 : 5 + Math.random() * 9,
-      speed: 0.1 + Math.random() * 0.15,
-      alpha: 0.5 + Math.random() * 0.35,
-      color: ['#a5b4fc', '#bae6fd', '#fed7aa', '#e0e7ff'][Math.floor(Math.random() * 4)],
-      drift: (Math.random() - 0.5) * 0.25,
-      hasRing,
-    };
-
-    bodiesRef.current.push(body);
-    if (bodiesRef.current.length > 22) bodiesRef.current.shift();
-    playCuteSound();
+  const createMoonStyle = (expense: any) => {
+    const seed = String(expense.id).split('').reduce((a: number, c: string) => a + c.charCodeAt(0), 0);
+    const hasRing = (seed % 5) > 1;
+    const ringThickness = 1.2 + (seed % 3) * 0.4;
+    const hasCraters = (seed % 3) === 0;
+    const shapeFactor = 1 + ((seed % 7) - 3) * 0.012;
+    const rotationSpeed = 0.0006 + ((seed % 8) * 0.00012);
+    return { hasRing, ringThickness, hasCraters, shapeFactor, rotationSpeed };
   };
 
-  useEffect(() => {
-    (window as any).spawnCelestial = spawnBody;
-    return () => {
-      delete (window as any).spawnCelestial;
+  const getStablePosition = (id: string, width: number, height: number) => {
+    const seed = String(id).split('').reduce((a: number, c: string) => a + c.charCodeAt(0), 0);
+    const x = (width * 0.12) + ((seed % 70) / 100) * (width * 0.76);
+    const y = (height * 0.16) + ((seed % 55) / 100) * (height * 0.5);
+    return { x, y };
+  };
+
+  const moonSize = (amount: number) => Math.max(6, Math.min(22, (amount || 0) / 45 + 6));
+
+  const buildMoon = (exp: any, canvas: HTMLCanvasElement, alpha: number): Moon => {
+    const style = createMoonStyle(exp);
+    const pos = getStablePosition(exp.id, canvas.width, canvas.height);
+    return {
+      id: exp.id,
+      x: pos.x,
+      y: pos.y,
+      size: moonSize(exp.amount),
+      color: CAT_COLORS[exp.category] || CAT_FALLBACK,
+      alpha,
+      hasRing: style.hasRing,
+      ringThickness: style.ringThickness,
+      rotation: Math.random() * Math.PI * 2,
+      rotationSpeed: style.rotationSpeed,
+      hasCraters: style.hasCraters,
+      shapeFactor: style.shapeFactor,
     };
+  };
+
+  // Store subscription (imperative) + silent initial load.
+  // expenses are read from profile.expenses (updated on "Calculate Budget").
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (canvas) {
+      getExpenses().forEach((exp: any) => {
+        if (exp && exp.id && !moonsRef.current.has(exp.id)) {
+          moonsRef.current.set(exp.id, buildMoon(exp, canvas, 0.82));
+        }
+      });
+    }
+    hasMountedRef.current = true;
+
+    const unsubscribe = useAppStore.subscribe(() => {
+      const currentExpenses = getExpenses();
+      const currentMoons = moonsRef.current;
+      const canvasEl = canvasRef.current;
+      if (!canvasEl) return;
+
+      currentExpenses.forEach((exp: any) => {
+        if (exp && exp.id && !currentMoons.has(exp.id)) {
+          currentMoons.set(exp.id, buildMoon(exp, canvasEl, 0));
+          playCuteSound();
+        }
+      });
+    });
+
+    return unsubscribe;
   }, []);
 
+  // Mouse parallax
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       const x = ((e.clientX / window.innerWidth) - 0.5) * 2;
       const y = ((e.clientY / window.innerHeight) - 0.5) * 2;
-      setMousePos({ x: x * 14, y: y * 9 });
+      setMousePos({ x: x * 13, y: y * 8 });
     };
     window.addEventListener('mousemove', handleMouseMove);
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
+  // Canvas animation
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-
     const ctx = canvas.getContext('2d', { alpha: true });
     if (!ctx) return;
 
@@ -113,58 +174,104 @@ export default function WalkBackground() {
     resize();
     window.addEventListener('resize', resize);
 
+    let raf = 0;
     const animate = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      bodiesRef.current = bodiesRef.current.filter(b => b.alpha > 0.06);
+      const moons = moonsRef.current;
+      const liveIds = new Set(getExpenses().map((e: any) => e && e.id));
 
-      bodiesRef.current.forEach(body => {
-        body.x += body.drift;
-        body.y -= body.speed;
-        body.alpha *= 0.997;
+      moons.forEach((moon, id) => {
+        const stillExists = liveIds.has(id);
+        if (stillExists) {
+          if (moon.alpha < 0.82) moon.alpha = Math.min(moon.alpha + 0.04, 0.82);
+        } else {
+          moon.alpha *= 0.92;
+          if (moon.alpha < 0.06) {
+            moons.delete(id);
+            return;
+          }
+        }
+
+        if (moon.hasRing) moon.rotation += moon.rotationSpeed;
 
         ctx.save();
-        ctx.globalAlpha = body.alpha;
+        ctx.globalAlpha = moon.alpha;
 
         const glow = ctx.createRadialGradient(
-          body.x, body.y, body.size * 0.4,
-          body.x, body.y, body.size * 2.6
+          moon.x, moon.y, moon.size * 0.35,
+          moon.x, moon.y, moon.size * 2.5
         );
-        glow.addColorStop(0, body.color);
-        glow.addColorStop(0.5, body.color + '55');
+        glow.addColorStop(0, moon.color);
+        glow.addColorStop(0.5, moon.color + '55');
         glow.addColorStop(1, 'transparent');
-
         ctx.fillStyle = glow;
         ctx.beginPath();
-        ctx.arc(body.x, body.y, body.size * 2.6, 0, Math.PI * 2);
+        ctx.arc(moon.x, moon.y, moon.size * 2.5, 0, Math.PI * 2);
         ctx.fill();
 
-        ctx.fillStyle = body.color;
+        ctx.fillStyle = moon.color;
         ctx.beginPath();
-        ctx.arc(body.x, body.y, body.size, 0, Math.PI * 2);
+        ctx.ellipse(moon.x, moon.y, moon.size * moon.shapeFactor, moon.size / moon.shapeFactor, 0, 0, Math.PI * 2);
         ctx.fill();
 
-        if (body.hasRing) {
-          ctx.strokeStyle = body.color + '99';
-          ctx.lineWidth = 1.6;
+        if (moon.hasCraters) {
+          ctx.fillStyle = '#00000033';
           ctx.beginPath();
-          ctx.ellipse(body.x, body.y, body.size * 2, body.size * 0.5, Math.PI / 2.2, 0, Math.PI * 2);
-          ctx.stroke();
+          ctx.arc(moon.x - moon.size * 0.22, moon.y - moon.size * 0.18, moon.size * 0.18, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.beginPath();
+          ctx.arc(moon.x + moon.size * 0.28, moon.y + moon.size * 0.22, moon.size * 0.12, 0, Math.PI * 2);
+          ctx.fill();
         }
+
+        if (moon.hasRing) {
+          ctx.strokeStyle = moon.color + 'bb';
+          ctx.lineWidth = moon.ringThickness;
+          ctx.save();
+          ctx.translate(moon.x, moon.y);
+          ctx.rotate(moon.rotation);
+          ctx.beginPath();
+          ctx.ellipse(0, 0, moon.size * 1.9, moon.size * 0.5, 0, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.restore();
+        }
+
         ctx.restore();
       });
 
-      requestAnimationFrame(animate);
+      raf = requestAnimationFrame(animate);
     };
 
-    animate();
-    return () => window.removeEventListener('resize', resize);
+    raf = requestAnimationFrame(animate);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener('resize', resize);
+    };
   }, []);
+
+  const reduced = mounted && typeof window !== 'undefined' && window.matchMedia
+    ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    : false;
+  const shouldAnimate = mounted && surface === 'web' && !reduced;
+
+  if (!shouldAnimate) {
+    return (
+      <div
+        style={{
+          position: 'fixed', inset: 0, zIndex: 0,
+          backgroundImage: "url('/asteroid-path.jpg')",
+          backgroundSize: 'cover',
+          backgroundPosition: 'center 38%',
+        }}
+      />
+    );
+  }
 
   return (
     <>
-      <div 
-        className="fixed inset-0 -z-10"
+      <div
         style={{
+          position: 'fixed', inset: 0, zIndex: 0,
           backgroundImage: "url('/asteroid-path.jpg')",
           backgroundSize: 'cover',
           backgroundPosition: 'center 38%',
@@ -173,10 +280,10 @@ export default function WalkBackground() {
           willChange: 'transform',
         }}
       />
-      <div className="fixed inset-0 -z-10 bg-black/42" />
-      <canvas 
-        ref={canvasRef} 
-        className="fixed inset-0 -z-10 pointer-events-none" 
+      <div style={{ position: 'fixed', inset: 0, zIndex: 1, background: 'rgba(0,0,0,0.25)' }} />
+      <canvas
+        ref={canvasRef}
+        style={{ position: 'fixed', inset: 0, zIndex: 2, pointerEvents: 'none' }}
       />
     </>
   );
