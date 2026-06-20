@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useRef, useState } from 'react';
 
@@ -163,8 +163,8 @@ export default function WalkBackground() {
   return (
     <>
       <div 
+        className="fixed inset-0 -z-10"
         style={{
-          position: 'fixed', inset: 0, zIndex: 0,
           backgroundImage: "url('/asteroid-path.jpg')",
           backgroundSize: 'cover',
           backgroundPosition: 'center 38%',
@@ -173,10 +173,10 @@ export default function WalkBackground() {
           willChange: 'transform',
         }}
       />
-      <div style={{position:'fixed',inset:0,zIndex:1,background:'rgba(0,0,0,0.25)'}} />
+      <div className="fixed inset-0 -z-10 bg-black/42" />
       <canvas 
         ref={canvasRef} 
-        style={{position:'fixed',inset:0,zIndex:2,pointerEvents:'none'}} 
+        className="fixed inset-0 -z-10 pointer-events-none" 
       />
     </>
   );
