@@ -446,12 +446,12 @@ export function BudgetTab() {
               <div onClick={e=>addPop(e.clientX,e.clientY,'$'+(budget||490)+'!')} style={{
                 position:'relative', zIndex:20, width:440, height:300,
                 backgroundImage:"url('/images/budget-planet-heart.jpg')", backgroundSize:'contain', backgroundRepeat:'no-repeat', backgroundPosition:'center', backgroundColor:'transparent', mixBlendMode:'screen',
-                maskImage:'radial-gradient(ellipse 70% 70% at 50% 50%, #000 55%, transparent 80%)', WebkitMaskImage:'radial-gradient(ellipse 70% 70% at 50% 50%, #000 55%, transparent 80%)',
+                maskImage:'radial-gradient(ellipse 60% 62% at 50% 50%, #000 40%, transparent 72%)', WebkitMaskImage:'radial-gradient(ellipse 60% 62% at 50% 50%, #000 40%, transparent 72%)',
                 display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center',
                 cursor:'pointer', animation:'heartFloat 6s ease-in-out infinite, heartFlicker 2.8s ease-in-out infinite', userSelect:'none',
               }}>
                 <div style={{ fontSize:9, color:'rgba(255,255,255,0.65)', fontWeight:700, letterSpacing:1.5, textTransform:'uppercase', marginBottom:4 }}>Food Budget</div>
-                <div className="gloss-num" style={{ fontSize: budget?42:26, fontWeight:900, color:'white', lineHeight:1, letterSpacing: budget?0:2, textShadow:'0 0 24px rgba(255,255,255,0.45), 0 0 8px rgba(0,0,0,0.6)' }}>{isPending?'...':(budget?('$'+budget):'CALCULATE')}</div>
+                <div className="gloss-num" style={{ fontSize: budget?42:26, fontWeight:900, color:'white', lineHeight:1, letterSpacing: budget?0:2, textShadow:'0 0 24px rgba(255,255,255,0.45), 0 0 8px rgba(0,0,0,0.6)' }}>{isPending?'...':('$'+(budget||0))}</div>
                 <div style={{ fontSize:11, color:'rgba(255,255,255,0.55)', fontWeight:700, marginTop:4 }}>
                   {incomeNum>0?foodOfIncome+'% of income':'Monthly'}
                 </div>
