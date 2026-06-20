@@ -445,13 +445,13 @@ export function BudgetTab() {
               ))}
               <div onClick={e=>addPop(e.clientX,e.clientY,'$'+(budget||490)+'!')} style={{
                 position:'relative', zIndex:20, width:180, height:180, borderRadius:'50%',
-                background:'radial-gradient(circle at 28% 25%, #c2f5ff 0%, #44ccf2 18%, #1a80d8 46%, #0c3882 70%, #040e2a 100%)',
-                boxShadow:'0 0 80px rgba(0,200,255,0.6), 0 0 160px rgba(0,150,255,0.28), inset 0 0 60px rgba(255,255,255,0.15)',
+                backgroundImage:"url('/images/budget-planet-heart.jpg')", backgroundSize:'cover', backgroundPosition:'center', backgroundColor:'#0a0510',
+                boxShadow:'0 0 80px rgba(255,60,60,0.45), 0 0 160px rgba(255,40,40,0.22), inset 0 0 50px rgba(0,0,0,0.35)',
                 display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center',
-                cursor:'pointer', animation:'orbPulse 3s ease-in-out infinite', userSelect:'none',
+                cursor:'pointer', animation:'orbPulse 3s ease-in-out infinite, heartGlow 2.6s ease-in-out infinite', userSelect:'none',
               }}>
                 <div style={{ fontSize:9, color:'rgba(255,255,255,0.65)', fontWeight:700, letterSpacing:1.5, textTransform:'uppercase', marginBottom:4 }}>Food Budget</div>
-                <div className="gloss-num" style={{ fontSize:42, fontWeight:900, color:'white', lineHeight:1, textShadow:'0 0 24px rgba(255,255,255,0.4)' }}>${budget||490}</div>
+                <div className="gloss-num" style={{ fontSize: budget?42:26, fontWeight:900, color:'white', lineHeight:1, letterSpacing: budget?0:2, textShadow:'0 0 24px rgba(255,255,255,0.45), 0 0 8px rgba(0,0,0,0.6)' }}>{isPending?'...':(budget?('$'+budget):'CALCULATE')}</div>
                 <div style={{ fontSize:11, color:'rgba(255,255,255,0.55)', fontWeight:700, marginTop:4 }}>
                   {incomeNum>0?foodOfIncome+'% of income':'Monthly'}
                 </div>
