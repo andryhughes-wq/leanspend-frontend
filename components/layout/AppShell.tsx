@@ -15,6 +15,7 @@ const TABS: { id: TabId; label: string }[] = [
   { id:'fitness',   label:'Fitness'   },
   { id:'tips',      label:'Tips'      },
   { id:'nearby',    label:'Near Me'   },
+  { id:'list',      label:'List'      },
 ]
 
 const PALETTES = [

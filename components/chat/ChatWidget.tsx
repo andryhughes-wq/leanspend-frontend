@@ -6,6 +6,16 @@ import toast from 'react-hot-toast'
 
 interface Msg { role:'user'|'bot'; text:string; id:number; action?:any }
 
+function parseListIntent(text: string): string[] | null {
+  const t = text.trim()
+  let m = t.match(/(?:add|put)\s+(.+?)\s+(?:to|on|in)\s+(?:my\s+)?(?:shopping\s+|grocery\s+)?list\b/i)
+  if (!m) m = t.match(/(?:make|create|build|start|generate|give me)\s+(?:me\s+)?(?:a\s+)?(?:shopping\s+|grocery\s+)?list(?:\s+(?:of|with|for))?[:\-]?\s*(.+)/i)
+  if (!m) m = t.match(/(?:shopping|grocery)\s+list[:\-]\s*(.+)/i)
+  if (!m) return null
+  const items = m[1].split(/,|\band\b|\n|;|\+/i).map(x => x.replace(/^\s*(?:a|an|some|the)\s+/i, '').trim()).filter(x => x.length > 1 && x.length < 40)
+  return items.length ? items : null
+}
+
 const GREETINGS: Record<string,string> = {
   budget:    "Hey! I'm LeanBot  I can help calculate your budget, suggest meals, or add foods to your plan. Try asking: 'Add salmon to my dinner' or 'Generate a muscle gain plan'!",
   tips:      " I'm your budget coach! Ask me: 'How do I cut my grocery bill?' or 'Best protein deals this week?'",
@@ -19,11 +29,19 @@ export function ChatWidget({ context='general' }: { context?:string }) {
   const [input, setInput]   = useState('')
   const [typing, setTyping] = useState(false)
   const endRef              = useRef<HTMLDivElement>(null)
-  const { profile, mealPlan, setMealPlan } = useAppStore()
+  const { profile, mealPlan, setMealPlan, addListItems, setActiveTab } = useAppStore()
 
   useEffect(()=>{ endRef.current?.scrollIntoView({ behavior:'smooth' }) }, [msgs, typing])
 
   const handleAction = async (action: { type:string; data:any }) => {
+    if (action.type === 'ADD_TO_LIST') {
+      const items: string[] = (action.data && (action.data.items || action.data.list)) || []
+      if (items.length) {
+        addListItems(items)
+        setActiveTab('list')
+        setMsgs(p => [...p, { role:'bot', text:`Added ${items.length} items to your List tab!`, id:Date.now()+4 }])
+      }
+    }
     if (action.type === 'ADD_FOOD') {
       try {
         const suggestion = await mealsApi.addFood({
@@ -73,6 +91,17 @@ export function ChatWidget({ context='general' }: { context?:string }) {
   const send = async () => {
     const text = input.trim()
     if (!text || typing) return
+    const listItems = parseListIntent(text)
+    if (listItems) {
+      setInput('')
+      addListItems(listItems)
+      setActiveTab('list')
+      setMsgs(p => [...p,
+        { role:'user', text, id:Date.now() },
+        { role:'bot', text:`Added ${listItems.length} item${listItems.length>1?'s':''} to your List tab: ${listItems.join(', ')}. Opening it now - hit "Find deals" to scan prices!`, id:Date.now()+1 },
+      ])
+      return
+    }
     setInput('')
     setMsgs(p => [...p, { role:'user', text, id:Date.now() }])
     setTyping(true)

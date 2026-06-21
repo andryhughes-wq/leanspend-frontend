@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useEffect } from 'react'
 import { authApi } from '@/lib/api'
 import { useAppStore } from '@/store/appStore'
 import { AppShell } from '@/components/layout/AppShell'
@@ -13,11 +13,13 @@ import { NutritionTab } from '@/components/nutrition/NutritionTab'
 import { TipsTab }      from '@/components/tips/TipsTab'
 import { FitnessTab }   from '@/components/fitness/FitnessTab'
 import { NearbyTab }    from '@/components/nearby/NearbyTab'
+import { ListTab }      from '@/components/list/ListTab'
 
-export type TabId = 'budget' | 'orbit' | 'diets' | 'scanner' | 'calendar' | 'meals' | 'nutrition' | 'fitness' | 'tips' | 'nearby'
+export type TabId = 'budget' | 'orbit' | 'diets' | 'scanner' | 'calendar' | 'meals' | 'nutrition' | 'fitness' | 'tips' | 'nearby' | 'list'
 
 export default function HomePage() {
-  const [tab, setTab] = useState<TabId>('budget')
+  const tab = useAppStore(s => s.activeTab) as TabId
+  const setTab = useAppStore(s => s.setActiveTab)
   const setAuth = useAppStore(s => s.setAuth)
   useEffect(() => {
     authApi.me()
@@ -36,6 +38,7 @@ export default function HomePage() {
       {tab === 'fitness'   && <FitnessTab />}
       {tab === 'tips'      && <TipsTab />}
         {tab === 'nearby'    && <NearbyTab />}
+        {tab === 'list'      && <ListTab />}
     </AppShell>
   )
 }
