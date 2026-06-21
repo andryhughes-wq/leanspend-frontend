@@ -95,7 +95,7 @@ export function NearbyTab() {
     if (!mapReady || !L || lat == null || lng == null || !mapDivRef.current) return
     try {
       if (!mapObj.current) {
-        mapObj.current = L.map(mapDivRef.current, { preferCanvas: true, scrollWheelZoom: true, zoomAnimation: false, fadeAnimation: false, markerZoomAnimation: false, maxZoom: 16 })
+        mapObj.current = L.map(mapDivRef.current, { center: [lat, lng], zoom: 11, preferCanvas: true, scrollWheelZoom: true, zoomAnimation: false, fadeAnimation: false, markerZoomAnimation: false, maxZoom: 16 })
         L.tileLayer('/api/tiles/{z}/{x}/{y}', { maxZoom: 16, attribution: '&copy; OpenStreetMap &copy; CARTO' }).addTo(mapObj.current)
         mapLayer.current = L.layerGroup().addTo(mapObj.current)
       }
@@ -115,8 +115,8 @@ export function NearbyTab() {
       m.fitBounds(c.getBounds(), { padding: [24, 24] })
       setTimeout(() => { try { m.invalidateSize() } catch {} }, 120)
       setMapErr(null)
-    } catch {
-      setMapErr('Map could not load on this device.')
+    } catch (e: any) {
+      setMapErr('Map error: ' + (e && e.message ? e.message : String(e)))
     }
   }, [mapReady, lat, lng, radius, deals, stores])
 
