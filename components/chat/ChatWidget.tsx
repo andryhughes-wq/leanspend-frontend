@@ -38,8 +38,8 @@ export function ChatWidget({ context='general' }: { context?:string }) {
       const items: string[] = (action.data && (action.data.items || action.data.list)) || []
       if (items.length) {
         addListItems(items)
-        setActiveTab('list')
-        setMsgs(p => [...p, { role:'bot', text:`Added ${items.length} items to your List tab!`, id:Date.now()+4 }])
+        setActiveTab('budget')
+        setMsgs(p => [...p, { role:'bot', text:`Added ${items.length} items to your Stellar List on the Budget page!`, id:Date.now()+4 }])
       }
     }
     if (action.type === 'ADD_FOOD') {
@@ -95,10 +95,10 @@ export function ChatWidget({ context='general' }: { context?:string }) {
     if (listItems) {
       setInput('')
       addListItems(listItems)
-      setActiveTab('list')
+      setActiveTab('budget')
       setMsgs(p => [...p,
         { role:'user', text, id:Date.now() },
-        { role:'bot', text:`Added ${listItems.length} item${listItems.length>1?'s':''} to your List tab: ${listItems.join(', ')}. Opening it now - hit "Find deals" to scan prices!`, id:Date.now()+1 },
+        { role:'bot', text:`Added ${listItems.length} item${listItems.length>1?'s':''} to your Stellar List (Budget page): ${listItems.join(', ')}. Opening it now - hit "Find deals" to scan prices!`, id:Date.now()+1 },
       ])
       return
     }

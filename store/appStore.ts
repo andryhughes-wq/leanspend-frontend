@@ -46,6 +46,7 @@ interface AppState {
   setActiveTab: (t: string) => void
   addListItem: (name: string) => void
   addListItems: (names: string[]) => void
+  pushListItem: (item: ListItem) => void
   removeListItem: (id: string) => void
   toggleListItem: (id: string) => void
   clearList: () => void
@@ -78,6 +79,7 @@ export const useAppStore = create<AppState>()(
       setActiveTab: t => set({ activeTab: t }),
       addListItem: name => set(s => (name.trim() ? { shoppingList: [...s.shoppingList, { id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7), name: name.trim(), checked: false, deal: undefined }] } : {})),
       addListItems: names => set(s => ({ shoppingList: [...s.shoppingList, ...names.map(n => n.trim()).filter(Boolean).map((n, i) => ({ id: Date.now().toString(36) + i + Math.random().toString(36).slice(2, 6), name: n, checked: false, deal: undefined }))] })),
+      pushListItem: item => set(s => ({ shoppingList: [...s.shoppingList, item] })),
       removeListItem: id => set(s => ({ shoppingList: s.shoppingList.filter(i => i.id !== id) })),
       toggleListItem: id => set(s => ({ shoppingList: s.shoppingList.map(i => i.id === id ? { ...i, checked: !i.checked } : i) })),
       clearList: () => set({ shoppingList: [] }),

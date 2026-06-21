@@ -13,9 +13,8 @@ import { NutritionTab } from '@/components/nutrition/NutritionTab'
 import { TipsTab }      from '@/components/tips/TipsTab'
 import { FitnessTab }   from '@/components/fitness/FitnessTab'
 import { NearbyTab }    from '@/components/nearby/NearbyTab'
-import { ListTab }      from '@/components/list/ListTab'
 
-export type TabId = 'budget' | 'orbit' | 'diets' | 'scanner' | 'calendar' | 'meals' | 'nutrition' | 'fitness' | 'tips' | 'nearby' | 'list'
+export type TabId = 'budget' | 'orbit' | 'diets' | 'scanner' | 'calendar' | 'meals' | 'nutrition' | 'fitness' | 'tips' | 'nearby'
 
 export default function HomePage() {
   const tab = useAppStore(s => s.activeTab) as TabId
@@ -38,7 +37,6 @@ export default function HomePage() {
       {tab === 'fitness'   && <FitnessTab />}
       {tab === 'tips'      && <TipsTab />}
         {tab === 'nearby'    && <NearbyTab />}
-        {tab === 'list'      && <ListTab />}
     </AppShell>
   )
 }

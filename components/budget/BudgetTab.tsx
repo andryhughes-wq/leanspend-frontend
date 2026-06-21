@@ -7,6 +7,7 @@ import { useAppStore, type Expense } from '@/store/appStore'
 import { ChatWidget } from '@/components/chat/ChatWidget'
 import { useSurface } from '@/lib/useSurface'
 import { CalcAnimation, type CalcAnimationHandle } from '@/components/budget/CalcAnimation'
+import { StellarList } from '@/components/list/StellarList'
 
 const ALLERGENS = ['Gluten','Dairy','Eggs','Peanuts','Soy','Shellfish','Fish','Wheat']
 const DYES      = ['Red #40','Yellow #5','Yellow #6','Blue #1','Red #3']
@@ -255,6 +256,7 @@ export function BudgetTab() {
 
   return (
     <div style={{ position:'relative' }}>
+      <StellarList />
       <CalcAnimation ref={calcRef} />
 
       {BUBBLES.map((b,i) => (
