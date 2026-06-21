@@ -245,14 +245,14 @@ export function NearbyTab() {
         </div>
       </div>
 
-      {searched && lat != null && lng != null && (
+      {lat != null && lng != null && (
         <div style={{ ...card, padding: 0, overflow: 'hidden' }}>
           <div style={{ padding: '12px 16px', fontSize: 14, fontWeight: 800, color: 'white' }}>Deals on the map</div>
           <div ref={dealsMapRef} style={{ width: '100%', height: 320, background: 'rgba(255,255,255,0.03)' }} />
         </div>
       )}
 
-      {searched && lat != null && lng != null && (
+      {lat != null && lng != null && (
         <div style={{ ...card, padding: 0, overflow: 'hidden' }}>
           <div style={{ padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ fontSize: 14, fontWeight: 800, color: 'white' }}>Grocery stores in this area</span>
