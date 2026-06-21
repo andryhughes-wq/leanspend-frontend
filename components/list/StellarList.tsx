@@ -14,13 +14,13 @@ function guessIcon(n: string) { const l = (n || '').toLowerCase(); for (const [k
 
 const CSS = `
 .sbl-wrap{position:fixed;top:92px;right:18px;width:340px;max-width:calc(100vw - 24px);z-index:60;font-family:Nunito,sans-serif;}
-.sbl-card{background:rgba(15,15,35,0.74);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.12);border-radius:24px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.45);}
-.sbl-head{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;cursor:pointer;transition:background .15s;}
+.sbl-card{background:linear-gradient(160deg,rgba(28,24,58,0.94),rgba(12,11,28,0.95));backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);border:1.5px solid rgba(255,255,255,0.16);border-radius:24px;overflow:hidden;position:relative;box-shadow:0 24px 70px rgba(0,0,0,0.55),inset 0 1px 0 rgba(255,255,255,0.08);}
+.sbl-head{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;cursor:pointer;transition:background .15s;position:relative;z-index:2;}
 .sbl-head:hover{background:rgba(255,255,255,0.05);}
 .sbl-title{font-size:15px;font-weight:900;color:#fff;letter-spacing:-.2px;}
 .sbl-sub{font-size:10px;color:rgba(255,255,255,0.5);margin-top:-1px;font-weight:700;}
 .sbl-chev{color:rgba(255,255,255,0.6);font-size:11px;}
-.sbl-body{padding:0 16px 16px;position:relative;}
+.sbl-body{padding:0 16px 16px;position:relative;z-index:2;}
 .sbl-search{width:100%;background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.1);color:#fff;font-size:13px;font-weight:700;border-radius:14px;padding:9px 14px;margin-bottom:12px;outline:none;font-family:Nunito,sans-serif;box-sizing:border-box;}
 .sbl-search:focus{border-color:#00e0ff;}
 .sbl-search::placeholder{color:rgba(255,255,255,0.4);}
@@ -45,9 +45,10 @@ const CSS = `
 .sbl-ghost:disabled{opacity:.5;cursor:default;}
 .sbl-msg{font-size:11px;color:rgba(255,255,255,0.55);font-weight:700;margin-top:8px;line-height:1.4;}
 .sbl-launch{background:rgba(15,15,35,0.74);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.12);border-radius:18px;padding:11px 16px;color:#fff;font-weight:800;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:8px;box-shadow:0 12px 40px rgba(0,0,0,0.4);font-family:Nunito,sans-serif;}
-.sbl-star{position:absolute;top:14%;right:8%;width:4px;height:4px;background:#fff;border-radius:50%;box-shadow:0 0 6px #fff,0 0 14px #00e0ff,0 0 26px #00e0ff;z-index:50;pointer-events:none;animation:sblShoot 1000ms cubic-bezier(.23,1,.32,1) forwards;}
-.sbl-trail{position:absolute;top:14%;right:8%;width:130px;height:3px;background:linear-gradient(to left,#00e0ff 0%,rgba(0,224,255,.5) 30%,transparent 100%);border-radius:50%;z-index:40;pointer-events:none;filter:blur(1px);animation:sblShoot 1000ms cubic-bezier(.23,1,.32,1) forwards;}
-@keyframes sblShoot{0%{transform:translate(0,0) scale(1);opacity:1;}65%{transform:translate(-250px,120px) scale(.7);opacity:.95;}100%{transform:translate(-300px,150px) scale(.15);opacity:0;}}
+.sbl-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;opacity:.62;pointer-events:none;}
+.sbl-bgtint{position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(160deg,rgba(16,14,38,0.72),rgba(9,8,22,0.84));}
+.sbl-comet{position:absolute;top:1%;right:-2%;width:80%;max-width:300px;z-index:6;pointer-events:none;mix-blend-mode:screen;}
+@keyframes sblShoot{0%{transform:translate(0,0) scale(.6);opacity:0;}12%{opacity:1;transform:translate(-25px,15px) scale(1);}100%{transform:translate(-285px,170px) scale(.25);opacity:0;}}
 .sbl-materialize{animation:sblMat 1300ms cubic-bezier(.23,1,.32,1) forwards;}
 @keyframes sblMat{0%{opacity:0;transform:translateY(12px) scale(.92);box-shadow:0 0 0 0 rgba(0,224,255,.25);}40%{opacity:1;transform:translateY(0) scale(1);box-shadow:0 0 0 12px rgba(0,224,255,.06);}100%{box-shadow:0 0 0 0 rgba(0,224,255,0);}}
 .sbl-shim{position:relative;overflow:hidden;}
@@ -78,9 +79,8 @@ export function StellarList() {
     setTimeout(() => {
       pushListItem({ id, name, checked: false, deal: undefined })
       setNewId(id)
-      setAnimating(false)
-      setTimeout(() => setNewId(null), 1400)
-    }, 1000)
+    }, 600)
+    setTimeout(() => { setAnimating(false); setNewId(null) }, 1600)
   }
 
   const scan = async () => {
@@ -113,6 +113,8 @@ export function StellarList() {
         </button>
       ) : (
         <div className="sbl-card">
+          <video className="sbl-bg" src="/videos/list-bg.mp4" autoPlay loop muted playsInline />
+          <div className="sbl-bgtint" />
           <div className="sbl-head" onClick={() => setOpen(false)}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <span style={{ fontSize: 18 }}>✨</span>
@@ -167,7 +169,7 @@ export function StellarList() {
 
             {msg && <div className="sbl-msg">{msg}</div>}
 
-            {animating && (<><div className="sbl-star" /><div className="sbl-trail" /></>)}
+            {animating && <video className="sbl-comet" src="/videos/star.mp4" autoPlay muted playsInline />}
           </div>
         </div>
       )}

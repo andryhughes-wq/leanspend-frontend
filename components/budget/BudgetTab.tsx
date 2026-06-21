@@ -139,11 +139,15 @@ function ChibiModal({ onClose }: { onClose: () => void }) {
   )
 }
 
+function playPop() {
+  try { const a = new Audio('/sounds/bubble-pop.mp3'); a.volume = 0.45; a.play().catch(() => {}) } catch {}
+}
+
 function Bubble({ size, style, onPop }: { size:number; style:React.CSSProperties; onPop:(x:number,y:number)=>void }) {
   const [alive, setAlive] = useState(true)
   if (!alive) return null
   return (
-    <div onClick={e => { setAlive(false); onPop(e.clientX, e.clientY) }} style={{
+    <div onClick={e => { setAlive(false); playPop(); onPop(e.clientX, e.clientY) }} style={{
       width:size, height:size, borderRadius:'50%', cursor:'pointer',
       background:'radial-gradient(circle at 30% 26%, rgba(255,255,255,0.78) 0%, rgba(160,230,255,0.38) 32%, rgba(167,139,250,0.22) 62%, rgba(78,205,196,0.1) 100%)',
       border:'1px solid rgba(255,255,255,0.42)',
