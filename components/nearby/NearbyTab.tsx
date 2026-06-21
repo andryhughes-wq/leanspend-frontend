@@ -36,9 +36,9 @@ export function NearbyTab() {
   const [stores, setStores] = useState<Store[]>([])
   const [storesBusy, setStoresBusy] = useState(false)
   const [storesErr, setStoresErr] = useState<string | null>(null)
-  const dealsMapRef = useRef<HTMLDivElement>(null); const dealsMap = useRef<any>(null); const dealsLayer = useRef<any>(null)
-  const storeMapRef = useRef<HTMLDivElement>(null); const storeMap = useRef<any>(null); const storeLayer = useRef<any>(null)
+  const mapDivRef = useRef<HTMLDivElement>(null); const mapObj = useRef<any>(null); const mapLayer = useRef<any>(null)
   const [mapReady, setMapReady] = useState(false)
+  const [mapErr, setMapErr] = useState<string | null>(null)
 
   useEffect(() => {
     if ((window as any).L) { setMapReady(true); return }
@@ -54,8 +54,7 @@ export function NearbyTab() {
   }, [])
 
   useEffect(() => () => {
-    if (dealsMap.current) { dealsMap.current.remove(); dealsMap.current = null }
-    if (storeMap.current) { storeMap.current.remove(); storeMap.current = null }
+    if (mapObj.current) { try { mapObj.current.remove() } catch {} ; mapObj.current = null }
   }, [])
 
   // Fetch all grocery stores in radius from OpenStreetMap (Overpass, no key)
@@ -64,7 +63,7 @@ export function NearbyTab() {
     let cancelled = false
     setStoresBusy(true); setStoresErr(null)
     const meters = Math.round(radius * 1609.34)
-    const ql = `[out:json][timeout:25];(node["shop"~"supermarket|grocery|greengrocer"](around:${meters},${lat},${lng});way["shop"~"supermarket|grocery|greengrocer"](around:${meters},${lat},${lng}););out center 250 tags;`
+    const ql = `[out:json][timeout:25];(node["shop"~"supermarket|grocery|greengrocer"](around:${meters},${lat},${lng});way["shop"~"supermarket|grocery|greengrocer"](around:${meters},${lat},${lng}););out center 120 tags;`
     fetch('https://overpass-api.de/api/interpreter', { method: 'POST', body: ql })
       .then(r => r.json())
       .then(j => {
@@ -72,53 +71,43 @@ export function NearbyTab() {
         const out: Store[] = (j.elements || []).map((e: any) => {
           const elat = e.lat ?? e.center?.lat, elng = e.lon ?? e.center?.lon
           return { id: e.id, name: e.tags?.name || e.tags?.brand || 'Grocery store', brand: e.tags?.brand, lat: elat, lng: elng, distance: (elat != null && elng != null) ? milesBetween(lat, lng, elat, elng) : 999 }
-        }).filter((s: Store) => s.lat != null && s.lng != null).sort((a: Store, b: Store) => a.distance - b.distance)
+        }).filter((s: Store) => s.lat != null && s.lng != null).sort((a: Store, b: Store) => a.distance - b.distance).slice(0, 80)
         setStores(out); setStoresBusy(false)
       })
       .catch(() => { if (!cancelled) { setStoresErr('Could not load grocery stores right now - try again.'); setStoresBusy(false) } })
     return () => { cancelled = true }
   }, [lat, lng, radius])
 
-  // Deals map
+  // ONE lightweight canvas map: radius circle + grocery-store pins + deal pins
   useEffect(() => {
     const L = (window as any).L
-    if (!mapReady || !L || lat == null || lng == null || !dealsMapRef.current) return
-    if (!dealsMap.current) {
-      dealsMap.current = L.map(dealsMapRef.current, { scrollWheelZoom: true })
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 19, attribution: '&copy; OpenStreetMap &copy; CARTO' }).addTo(dealsMap.current)
-      dealsLayer.current = L.layerGroup().addTo(dealsMap.current)
+    if (!mapReady || !L || lat == null || lng == null || !mapDivRef.current) return
+    try {
+      if (!mapObj.current) {
+        mapObj.current = L.map(mapDivRef.current, { preferCanvas: true, scrollWheelZoom: true, zoomAnimation: false, fadeAnimation: false, markerZoomAnimation: false, maxZoom: 16 })
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', { maxZoom: 16, crossOrigin: true, attribution: '&copy; OpenStreetMap &copy; CARTO' }).addTo(mapObj.current)
+        mapLayer.current = L.layerGroup().addTo(mapObj.current)
+      }
+      const m = mapObj.current; mapLayer.current.clearLayers()
+      const center: [number, number] = [lat, lng]
+      const c = L.circle(center, { radius: radius * 1609.34, color: '#00ffcc', weight: 1.5, fillColor: '#00ffcc', fillOpacity: 0.05 }).addTo(mapLayer.current)
+      L.circleMarker(center, { radius: 7, color: '#fff', weight: 2, fillColor: '#00ffcc', fillOpacity: 1 }).addTo(mapLayer.current).bindPopup('You are here')
+      stores.forEach(s2 => {
+        L.circleMarker([s2.lat, s2.lng], { radius: 6, color: '#04121a', weight: 1, fillColor: '#5b9cff', fillOpacity: 0.95 }).addTo(mapLayer.current)
+          .bindPopup('<b>' + escHtml(s2.name) + '</b><br>' + s2.distance.toFixed(1) + ' mi away')
+      })
+      deals.forEach(d => {
+        if (d.latitude == null || d.longitude == null) return
+        L.circleMarker([d.latitude, d.longitude], { radius: 6, color: '#04121a', weight: 1, fillColor: '#ffd54a', fillOpacity: 0.95 }).addTo(mapLayer.current)
+          .bindPopup('<b>' + escHtml(d.store_name || 'Store') + '</b><br>' + escHtml(d.product_name) + ' &mdash; $' + Number(d.price).toFixed(2) + '<br>' + d.distance_miles.toFixed(1) + ' mi away')
+      })
+      m.fitBounds(c.getBounds(), { padding: [24, 24] })
+      setTimeout(() => { try { m.invalidateSize() } catch {} }, 120)
+      setMapErr(null)
+    } catch {
+      setMapErr('Map could not load on this device.')
     }
-    const m = dealsMap.current; dealsLayer.current.clearLayers()
-    const center: [number, number] = [lat, lng]
-    const c = L.circle(center, { radius: radius * 1609.34, color: '#00ffcc', weight: 1.5, fillColor: '#00ffcc', fillOpacity: 0.06 }).addTo(dealsLayer.current)
-    L.circleMarker(center, { radius: 7, color: '#fff', weight: 2, fillColor: '#00ffcc', fillOpacity: 1 }).addTo(dealsLayer.current).bindPopup('You are here')
-    deals.forEach(d => {
-      if (d.latitude == null || d.longitude == null) return
-      L.circleMarker([d.latitude, d.longitude], { radius: 6, color: '#04121a', weight: 1, fillColor: '#ffd54a', fillOpacity: 0.95 }).addTo(dealsLayer.current)
-        .bindPopup('<b>' + escHtml(d.store_name || 'Store') + '</b><br>' + escHtml(d.product_name) + ' &mdash; $' + Number(d.price).toFixed(2) + '<br>' + d.distance_miles.toFixed(1) + ' mi away')
-    })
-    m.fitBounds(c.getBounds(), { padding: [24, 24] }); setTimeout(() => m.invalidateSize(), 80)
-  }, [mapReady, lat, lng, radius, deals])
-
-  // Grocery stores map
-  useEffect(() => {
-    const L = (window as any).L
-    if (!mapReady || !L || lat == null || lng == null || !storeMapRef.current) return
-    if (!storeMap.current) {
-      storeMap.current = L.map(storeMapRef.current, { scrollWheelZoom: true })
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 19, attribution: '&copy; OpenStreetMap &copy; CARTO' }).addTo(storeMap.current)
-      storeLayer.current = L.layerGroup().addTo(storeMap.current)
-    }
-    const m = storeMap.current; storeLayer.current.clearLayers()
-    const center: [number, number] = [lat, lng]
-    const c = L.circle(center, { radius: radius * 1609.34, color: '#00ffcc', weight: 1.5, fillColor: '#00ffcc', fillOpacity: 0.05 }).addTo(storeLayer.current)
-    L.circleMarker(center, { radius: 7, color: '#fff', weight: 2, fillColor: '#00ffcc', fillOpacity: 1 }).addTo(storeLayer.current).bindPopup('You are here')
-    stores.forEach(s => {
-      L.circleMarker([s.lat, s.lng], { radius: 6, color: '#04121a', weight: 1, fillColor: '#5b9cff', fillOpacity: 0.95 }).addTo(storeLayer.current)
-        .bindPopup('<b>' + escHtml(s.name) + '</b><br>' + s.distance.toFixed(1) + ' mi away')
-    })
-    m.fitBounds(c.getBounds(), { padding: [24, 24] }); setTimeout(() => m.invalidateSize(), 80)
-  }, [mapReady, lat, lng, radius, stores])
+  }, [mapReady, lat, lng, radius, deals, stores])
 
   function useMyLocation() {
     setError(null)
@@ -247,32 +236,27 @@ export function NearbyTab() {
 
       {lat != null && lng != null && (
         <div style={{ ...card, padding: 0, overflow: 'hidden' }}>
-          <div style={{ padding: '12px 16px', fontSize: 14, fontWeight: 800, color: 'white' }}>Deals on the map</div>
-          <div ref={dealsMapRef} style={{ width: '100%', height: 320, background: 'rgba(255,255,255,0.03)' }} />
-        </div>
-      )}
-
-      {lat != null && lng != null && (
-        <div style={{ ...card, padding: 0, overflow: 'hidden' }}>
-          <div style={{ padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: 14, fontWeight: 800, color: 'white' }}>Grocery stores in this area</span>
-            <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>{storesBusy ? 'Searching...' : stores.length + ' found'}</span>
+          <div style={{ padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 6 }}>
+            <span style={{ fontSize: 14, fontWeight: 800, color: 'white' }}>Stores &amp; deals near you</span>
+            <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)' }}>
+              <span style={{ color: '#5b9cff' }}>&#9679;</span> {storesBusy ? 'stores...' : stores.length + ' stores'} &nbsp;&nbsp; <span style={{ color: '#ffd54a' }}>&#9679;</span> {deals.length} deals
+            </span>
           </div>
-          <div ref={storeMapRef} style={{ width: '100%', height: 320, background: 'rgba(255,255,255,0.03)' }} />
+          <div ref={mapDivRef} style={{ width: '100%', height: 340, background: 'rgba(255,255,255,0.03)' }} />
+          {mapErr && <div style={{ padding: '10px 16px', color: '#ff8a8a', fontSize: 12 }}>{mapErr}</div>}
           {storesErr && <div style={{ padding: '10px 16px', color: '#ff8a8a', fontSize: 12 }}>{storesErr}</div>}
           {stores.length > 0 && (
             <div style={{ maxHeight: 168, overflowY: 'auto', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
-              {stores.map(s => (
-                <div key={s.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 16px', borderBottom: '1px solid rgba(255,255,255,0.05)', fontSize: 13 }}>
-                  <span style={{ color: 'white', fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.name}</span>
-                  <span style={{ color: '#00ffcc', fontWeight: 800, flexShrink: 0, marginLeft: 10 }}>{s.distance.toFixed(1)} mi</span>
+              {stores.map(s2 => (
+                <div key={s2.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 16px', borderBottom: '1px solid rgba(255,255,255,0.05)', fontSize: 13 }}>
+                  <span style={{ color: 'white', fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s2.name}</span>
+                  <span style={{ color: '#00ffcc', fontWeight: 800, flexShrink: 0, marginLeft: 10 }}>{s2.distance.toFixed(1)} mi</span>
                 </div>
               ))}
             </div>
           )}
         </div>
       )}
-
       {error && (
         <div style={{ ...card, borderColor:'rgba(255,138,138,0.4)', color:'#ff8a8a', fontSize:13 }}>
           {error}
