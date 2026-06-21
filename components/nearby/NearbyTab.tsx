@@ -96,7 +96,7 @@ export function NearbyTab() {
     try {
       if (!mapObj.current) {
         mapObj.current = L.map(mapDivRef.current, { preferCanvas: true, scrollWheelZoom: true, zoomAnimation: false, fadeAnimation: false, markerZoomAnimation: false, maxZoom: 16 })
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', { maxZoom: 16, crossOrigin: true, attribution: '&copy; OpenStreetMap &copy; CARTO' }).addTo(mapObj.current)
+        L.tileLayer('/api/tiles/{z}/{x}/{y}', { maxZoom: 16, attribution: '&copy; OpenStreetMap &copy; CARTO' }).addTo(mapObj.current)
         mapLayer.current = L.layerGroup().addTo(mapObj.current)
       }
       const m = mapObj.current; mapLayer.current.clearLayers()
