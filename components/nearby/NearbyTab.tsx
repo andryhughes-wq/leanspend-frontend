@@ -64,8 +64,19 @@ export function NearbyTab() {
     setStoresBusy(true); setStoresErr(null)
     const meters = Math.round(radius * 1609.34)
     const ql = `[out:json][timeout:25];(node["shop"~"supermarket|grocery|greengrocer"](around:${meters},${lat},${lng});way["shop"~"supermarket|grocery|greengrocer"](around:${meters},${lat},${lng}););out center 120 tags;`
-    fetch('https://overpass-api.de/api/interpreter', { method: 'POST', body: ql })
-      .then(r => r.json())
+    const endpoints = ['https://overpass-api.de/api/interpreter', 'https://overpass.kumi.systems/api/interpreter', 'https://maps.mail.ru/osm/tools/overpass/api/interpreter']
+    const tryFetch = async () => {
+      let lastErr: any = null
+      for (const url of endpoints) {
+        try {
+          const r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: 'data=' + encodeURIComponent(ql) })
+          if (!r.ok) { lastErr = new Error('status ' + r.status); continue }
+          return await r.json()
+        } catch (e) { lastErr = e }
+      }
+      throw lastErr || new Error('all endpoints failed')
+    }
+    tryFetch()
       .then(j => {
         if (cancelled) return
         const out: Store[] = (j.elements || []).map((e: any) => {
