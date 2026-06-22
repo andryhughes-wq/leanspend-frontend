@@ -14,22 +14,22 @@ function guessIcon(n: string) { const l = (n || '').toLowerCase(); for (const [k
 
 const CSS = `
 .sbl-wrap{position:fixed;top:92px;right:18px;width:340px;max-width:calc(100vw - 24px);z-index:60;font-family:Nunito,sans-serif;}
-.sbl-card{background:linear-gradient(160deg,rgba(28,24,58,0.94),rgba(12,11,28,0.95));backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);border:1.5px solid rgba(255,255,255,0.16);border-radius:24px;overflow:hidden;position:relative;box-shadow:0 24px 70px rgba(0,0,0,0.55),inset 0 1px 0 rgba(255,255,255,0.08);}
+.sbl-card{background:linear-gradient(160deg,rgba(20,18,44,0.78),rgba(10,9,24,0.82));backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);border:1.5px solid rgba(255,255,255,0.16);border-radius:24px;overflow:hidden;position:relative;box-shadow:0 24px 70px rgba(0,0,0,0.55),inset 0 1px 0 rgba(255,255,255,0.08);}
 .sbl-head{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;cursor:pointer;transition:background .15s;position:relative;z-index:2;}
 .sbl-head:hover{background:rgba(255,255,255,0.05);}
-.sbl-title{font-size:15px;font-weight:900;color:#fff;letter-spacing:-.2px;}
-.sbl-sub{font-size:10px;color:rgba(255,255,255,0.5);margin-top:-1px;font-weight:700;}
+.sbl-title{font-size:15px;font-weight:900;color:#fff;letter-spacing:-.2px;text-shadow:0 1px 8px rgba(0,0,0,0.7);}
+.sbl-sub{font-size:10px;color:rgba(255,255,255,0.62);margin-top:-1px;font-weight:700;text-shadow:0 1px 6px rgba(0,0,0,0.6);}
 .sbl-chev{color:rgba(255,255,255,0.6);font-size:11px;}
 .sbl-body{padding:0 16px 16px;position:relative;z-index:2;}
 .sbl-search{width:100%;background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.1);color:#fff;font-size:13px;font-weight:700;border-radius:14px;padding:9px 14px;margin-bottom:12px;outline:none;font-family:Nunito,sans-serif;box-sizing:border-box;}
 .sbl-search:focus{border-color:#00e0ff;}
 .sbl-search::placeholder{color:rgba(255,255,255,0.4);}
-.sbl-list{max-height:300px;overflow:auto;display:flex;flex-direction:column;gap:8px;padding-right:2px;}
-.sbl-row{background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:11px 13px;display:flex;align-items:center;gap:10px;}
-.sbl-ico{font-size:18px;flex-shrink:0;}
-.sbl-name{flex:1;min-width:0;font-size:13.5px;font-weight:800;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;}
+.sbl-list{max-height:300px;overflow:auto;display:flex;flex-direction:column;gap:6px;padding-right:2px;}
+.sbl-row{background:rgba(10,12,28,0.55);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.09);border-radius:10px;padding:7px 11px;display:flex;align-items:center;gap:9px;}
+.sbl-ico{font-size:15px;flex-shrink:0;}
+.sbl-name{flex:1;min-width:0;font-size:12.5px;font-weight:600;color:#fff;letter-spacing:.1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;}
 .sbl-name.checked{text-decoration:line-through;opacity:.5;}
-.sbl-price{font-size:12px;font-weight:900;color:#00e0ff;font-variant-numeric:tabular-nums;flex-shrink:0;}
+.sbl-price{font-size:11.5px;font-weight:700;color:#00e0ff;font-variant-numeric:tabular-nums;flex-shrink:0;}
 .sbl-price.none{color:rgba(255,255,255,0.4);font-weight:700;}
 .sbl-x{background:none;border:none;color:rgba(255,255,255,0.35);font-size:17px;line-height:1;cursor:pointer;flex-shrink:0;padding:0 2px;}
 .sbl-x:hover{color:#ff4d6d;}
@@ -45,9 +45,9 @@ const CSS = `
 .sbl-ghost:disabled{opacity:.5;cursor:default;}
 .sbl-msg{font-size:11px;color:rgba(255,255,255,0.55);font-weight:700;margin-top:8px;line-height:1.4;}
 .sbl-launch{background:rgba(15,15,35,0.74);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.12);border-radius:18px;padding:11px 16px;color:#fff;font-weight:800;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:8px;box-shadow:0 12px 40px rgba(0,0,0,0.4);font-family:Nunito,sans-serif;}
-.sbl-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;opacity:.62;pointer-events:none;}
-.sbl-bgtint{position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(160deg,rgba(16,14,38,0.72),rgba(9,8,22,0.84));}
-.sbl-comet{position:absolute;top:1%;right:-2%;width:80%;max-width:300px;z-index:6;pointer-events:none;mix-blend-mode:screen;}
+.sbl-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;opacity:.95;pointer-events:none;}
+.sbl-bgtint{position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(180deg,rgba(8,8,20,0.42),rgba(8,8,20,0.14) 38%,rgba(8,8,20,0.30));}
+.sbl-comet{position:absolute;top:0;right:-3%;width:82%;max-width:310px;z-index:6;pointer-events:none;}
 @keyframes sblShoot{0%{transform:translate(0,0) scale(.6);opacity:0;}12%{opacity:1;transform:translate(-25px,15px) scale(1);}100%{transform:translate(-285px,170px) scale(.25);opacity:0;}}
 .sbl-materialize{animation:sblMat 1300ms cubic-bezier(.23,1,.32,1) forwards;}
 @keyframes sblMat{0%{opacity:0;transform:translateY(12px) scale(.92);box-shadow:0 0 0 0 rgba(0,224,255,.25);}40%{opacity:1;transform:translateY(0) scale(1);box-shadow:0 0 0 12px rgba(0,224,255,.06);}100%{box-shadow:0 0 0 0 rgba(0,224,255,0);}}
@@ -66,6 +66,7 @@ export function StellarList() {
   const [newId, setNewId] = useState<string | null>(null)
   const [scanning, setScanning] = useState(false)
   const [msg, setMsg] = useState<string | null>(null)
+  const [starKey, setStarKey] = useState(0)
 
   const filtered = shoppingList.filter(i => i.name.toLowerCase().includes(search.toLowerCase()))
 
@@ -74,6 +75,7 @@ export function StellarList() {
     if (!name || animating) return
     setInput('')
     setAnimating(true)
+    setStarKey(k => k + 1)
     const id = Date.now().toString(36) + Math.random().toString(36).slice(2, 7)
     // let the star streak across, then materialize the item behind its light
     setTimeout(() => {
@@ -169,7 +171,7 @@ export function StellarList() {
 
             {msg && <div className="sbl-msg">{msg}</div>}
 
-            {animating && <video className="sbl-comet" src="/videos/star.mp4" autoPlay muted playsInline />}
+            {animating && <img key={starKey} className="sbl-comet" src="/videos/star.gif" alt="" />}
           </div>
         </div>
       )}
