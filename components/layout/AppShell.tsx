@@ -6,22 +6,19 @@ import { AuthButton } from './AuthButton'
 
 const NAV: { group: string; items: { id: TabId; label: string; icon: string }[] }[] = [
   { group: 'Spend less', items: [
-    { id:'budget',   label:'Budget',   icon:'💰' },
-    { id:'orbit',    label:'Orbit',    icon:'🪐' },
-    { id:'scanner',  label:'Scanner',  icon:'📷' },
-    { id:'calendar', label:'Calendar', icon:'📅' },
-    { id:'nearby',   label:'Near Me',  icon:'📍' },
-    { id:'tips',     label:'Tips',     icon:'💡' },
+    { id:'budget', label:'Budget', icon:'💰' },
+    { id:'deals',  label:'Deals',  icon:'🏷️' },
+    { id:'tips',   label:'Tips',   icon:'💡' },
   ]},
   { group: 'Eat lean', items: [
     { id:'meals',     label:'Meals',     icon:'🍽️' },
     { id:'nutrition', label:'Nutrition', icon:'🍎' },
-    { id:'diets',     label:'Diets',     icon:'🥗' },
   ]},
   { group: 'Live fit', items: [
-    { id:'fitness',   label:'Fitness',   icon:'🏋️' },
+    { id:'fitness', label:'Fitness', icon:'🏋️' },
   ]},
 ]
+
 const ALL = NAV.flatMap(g => g.items.map(it => ({ ...it, group: g.group })))
 
 const PALETTES = [
