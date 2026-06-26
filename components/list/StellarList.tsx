@@ -48,13 +48,14 @@ const CSS = `
 .sbl-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;opacity:.95;pointer-events:none;}
 .sbl-bgtint{position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(180deg,rgba(8,8,20,0.42),rgba(8,8,20,0.14) 38%,rgba(8,8,20,0.30));}
 .sbl-comet{position:absolute;top:0;right:-3%;width:82%;max-width:310px;z-index:6;pointer-events:none;}
+.sbl-mascot{display:block;margin:12px auto 2px;width:124px;height:auto;pointer-events:none;filter:drop-shadow(0 8px 20px rgba(0,0,0,0.55));}
 @keyframes sblShoot{0%{transform:translate(0,0) scale(.6);opacity:0;}12%{opacity:1;transform:translate(-25px,15px) scale(1);}100%{transform:translate(-285px,170px) scale(.25);opacity:0;}}
 .sbl-materialize{animation:sblMat 1300ms cubic-bezier(.23,1,.32,1) forwards;}
 @keyframes sblMat{0%{opacity:0;transform:translateY(12px) scale(.92);box-shadow:0 0 0 0 rgba(0,224,255,.25);}40%{opacity:1;transform:translateY(0) scale(1);box-shadow:0 0 0 12px rgba(0,224,255,.06);}100%{box-shadow:0 0 0 0 rgba(0,224,255,0);}}
 .sbl-shim{position:relative;overflow:hidden;}
 .sbl-shim::after{content:'';position:absolute;top:0;left:-100%;width:45%;height:100%;background:linear-gradient(90deg,transparent,rgba(0,224,255,.6),transparent);animation:sblShim 900ms 350ms linear forwards;pointer-events:none;}
 @keyframes sblShim{0%{left:-100%;}100%{left:250%;}}
-@media (max-width:768px){.sbl-wrap{top:auto;bottom:14px;right:12px;left:12px;width:auto;max-width:none;}.sbl-list{max-height:210px;}}
+@media (max-width:768px){.sbl-wrap{top:auto;bottom:14px;right:12px;left:12px;width:auto;max-width:none;}.sbl-list{max-height:210px;}.sbl-mascot{width:96px;}}
 `
 
 export function StellarList() {
@@ -170,6 +171,8 @@ export function StellarList() {
             </div>
 
             {msg && <div className="sbl-msg">{msg}</div>}
+
+            <img className="sbl-mascot" src="/videos/hamster.webp" alt="LeanSpend mascot" />
 
             {animating && <img key={starKey} className="sbl-comet" src="/videos/star.gif" alt="" />}
           </div>
